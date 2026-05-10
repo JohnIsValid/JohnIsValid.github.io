@@ -224,24 +224,53 @@ const updateArticleVisibility = () => {
   showMoreArticles.textContent = isArticleListExpanded ? "收起文章" : "查看更多文章";
 };
 
+const loadManifestLinks = async () => {
+  const response = await fetch("md/articles.json", { cache: "no-store" });
+  if (!response.ok) throw new Error("文章清单读取失败");
+
+  const manifest = await response.json();
+
+  return manifest
+    .filter((file) => file.fileName && file.url)
+    .map((file) => {
+      const url = new URL(file.url, new URL("md/", window.location.href));
+
+      return {
+        fileName: file.fileName,
+        url: url.href,
+      };
+    });
+};
+
+const loadDirectoryLinks = async () => {
+  const directoryResponse = await fetch("md/");
+  if (!directoryResponse.ok) throw new Error("目录读取失败");
+
+  const directoryHtml = await directoryResponse.text();
+  const directoryDocument = new DOMParser().parseFromString(directoryHtml, "text/html");
+
+  return Array.from(directoryDocument.querySelectorAll("a"))
+    .map((link) => decodeURIComponent(link.getAttribute("href") || ""))
+    .filter((href) => href.toLowerCase().endsWith(".md"))
+    .map((href) => {
+      const url = new URL(href, new URL("md/", window.location.href));
+      const pathParts = url.pathname.split("/");
+      const fileName = decodeURIComponent(pathParts[pathParts.length - 1]);
+      return { fileName, url: url.href };
+    });
+};
+
 const loadMarkdownFiles = async () => {
   if (!articleGrid) return;
 
   try {
-    const directoryResponse = await fetch("md/");
-    if (!directoryResponse.ok) throw new Error("目录读取失败");
+    let links = [];
 
-    const directoryHtml = await directoryResponse.text();
-    const directoryDocument = new DOMParser().parseFromString(directoryHtml, "text/html");
-    const links = Array.from(directoryDocument.querySelectorAll("a"))
-      .map((link) => decodeURIComponent(link.getAttribute("href") || ""))
-      .filter((href) => href.toLowerCase().endsWith(".md"))
-      .map((href) => {
-        const url = new URL(href, new URL("md/", window.location.href));
-        const pathParts = url.pathname.split("/");
-        const fileName = decodeURIComponent(pathParts[pathParts.length - 1]);
-        return { fileName, url: url.href };
-      });
+    try {
+      links = await loadManifestLinks();
+    } catch {
+      links = await loadDirectoryLinks();
+    }
 
     markdownFiles = await Promise.all(
       links.map(async (file) => {
