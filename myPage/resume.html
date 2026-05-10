@@ -168,6 +168,27 @@
         text-decoration: none;
       }
 
+      .home-link {
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        z-index: 20;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 0 14px;
+        color: #fff;
+        background: var(--accent);
+        border-radius: 6px;
+        box-shadow: 0 8px 22px rgba(38, 84, 124, 0.22);
+        font-weight: 700;
+      }
+
+      .home-link:hover {
+        background: #173f63;
+      }
+
       .meta,
       .date {
         color: var(--muted);
@@ -257,9 +278,18 @@
         a {
           color: inherit;
         }
+
+        .home-link {
+          display: none;
+        }
       }
 
       @media (max-width: 760px) {
+        .home-link {
+          top: 10px;
+          left: 10px;
+        }
+
         .page {
           width: 100%;
           min-height: auto;
@@ -295,6 +325,7 @@
     </style>
   </head>
   <body>
+    <a class="home-link" href="index.html" aria-label="返回我的主页">返回主页</a>
     <main class="page">
       <header class="header">
         <div>
@@ -310,7 +341,7 @@
           </div>
         </div>
         <div class="photo-slot">
-          <img src="../123.jpg" alt="周瀚翔个人照片" />
+          <img src="assets/myIcon.jpg" alt="周瀚翔个人照片" />
         </div>
       </header>
 

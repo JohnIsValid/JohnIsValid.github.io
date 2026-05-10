@@ -8,7 +8,12 @@ const playToggle = document.querySelector(".play-toggle");
 const volumeToggle = document.querySelector(".volume-toggle");
 const restartButton = document.querySelector(".restart-button");
 const volumeSlider = document.querySelector(".volume-slider");
+const musicProgress = document.querySelector(".music-progress");
 const musicPlayer = document.querySelector(".music-player");
+const startupScreen = document.querySelector(".startup-screen");
+const musicTip = document.querySelector(".music-tip");
+const musicTipCountdown = document.querySelector(".music-tip-countdown");
+const musicTipButton = document.querySelector(".music-tip-button");
 const resourceList = document.querySelector(".resource-list");
 const showMoreResources = document.querySelector(".show-more-resources");
 const maxVolume = 0.75;
@@ -357,19 +362,80 @@ const setVolumeIcon = () => {
   volumeToggle.setAttribute("aria-label", audio.muted ? "取消静音" : "静音");
 };
 
-if (audio && playToggle && volumeToggle && restartButton && volumeSlider) {
-  audio.volume = Number(volumeSlider.value) / 100;
+const hasAudioDuration = () => audio && Number.isFinite(audio.duration) && audio.duration > 0;
 
-  const autoplay = audio.play();
-  if (autoplay) {
-    autoplay.catch(() => {
-      setPlayIcon();
+const syncMusicProgressDuration = () => {
+  if (!musicProgress || !hasAudioDuration()) return;
+
+  musicProgress.max = String(audio.duration);
+};
+
+const updateMusicProgress = () => {
+  if (!audio || !musicProgress || !hasAudioDuration()) return;
+
+  syncMusicProgressDuration();
+  musicProgress.value = String(audio.currentTime);
+};
+
+if (audio && playToggle && volumeToggle && restartButton && volumeSlider && musicProgress) {
+  audio.volume = Number(volumeSlider.value) / 100;
+  audio.load();
+
+  let musicTipRemainingSeconds = 3;
+  let musicTipTimer;
+  let isMusicTipClosed = false;
+  let isSeekingMusic = false;
+
+  const hideMusicTip = () => {
+    isMusicTipClosed = true;
+    window.clearInterval(musicTipTimer);
+    musicTip?.classList.add("is-hidden");
+  };
+
+  const updateMusicTipCountdown = () => {
+    if (!musicTipCountdown) return;
+
+    musicTipCountdown.textContent = `${musicTipRemainingSeconds}秒`;
+  };
+
+  const startMusicTipCountdown = () => {
+    if (isMusicTipClosed) return;
+
+    musicTipRemainingSeconds = 3;
+    updateMusicTipCountdown();
+    musicTip?.classList.remove("is-hidden");
+
+    musicTipTimer = window.setInterval(() => {
+      musicTipRemainingSeconds -= 1;
+      updateMusicTipCountdown();
+
+      if (musicTipRemainingSeconds <= 0) {
+        hideMusicTip();
+      }
+    }, 1000);
+  };
+
+  const playAudio = async () => {
+    hideMusicTip();
+    await audio.play();
+  };
+
+  musicTipButton?.addEventListener("click", hideMusicTip);
+
+  if (startupScreen) {
+    startupScreen.addEventListener("animationend", (event) => {
+      if (event.target !== startupScreen) return;
+
+      startupScreen.classList.add("is-finished");
+      startMusicTipCountdown();
     });
+  } else {
+    startMusicTipCountdown();
   }
 
   playToggle.addEventListener("click", async () => {
     if (audio.paused) {
-      await audio.play();
+      await playAudio();
     } else {
       audio.pause();
     }
@@ -379,9 +445,10 @@ if (audio && playToggle && volumeToggle && restartButton && volumeSlider) {
 
   restartButton.addEventListener("click", async () => {
     audio.currentTime = 0;
+    updateMusicProgress();
 
     if (audio.paused) {
-      await audio.play();
+      await playAudio();
     }
 
     setPlayIcon();
@@ -402,8 +469,68 @@ if (audio && playToggle && volumeToggle && restartButton && volumeSlider) {
     setVolumeIcon();
   });
 
+  const seekMusic = () => {
+    if (!hasAudioDuration()) return;
+
+    audio.currentTime = Math.min(Number(musicProgress.value), audio.duration);
+    updateMusicProgress();
+  };
+
+  const seekMusicFromPointer = (event) => {
+    if (!hasAudioDuration()) return;
+
+    const progressBox = musicProgress.getBoundingClientRect();
+    const progressRatio = Math.min(
+      Math.max((event.clientX - progressBox.left) / progressBox.width, 0),
+      1
+    );
+
+    audio.currentTime = progressRatio * audio.duration;
+    updateMusicProgress();
+  };
+
+  musicProgress.addEventListener("pointerdown", (event) => {
+    isSeekingMusic = true;
+    musicProgress.setPointerCapture?.(event.pointerId);
+    seekMusicFromPointer(event);
+  });
+
+  musicProgress.addEventListener("pointermove", (event) => {
+    if (!isSeekingMusic) return;
+
+    seekMusicFromPointer(event);
+  });
+
+  musicProgress.addEventListener("input", () => {
+    isSeekingMusic = true;
+    seekMusic();
+  });
+
+  musicProgress.addEventListener("change", () => {
+    seekMusic();
+    isSeekingMusic = false;
+  });
+
+  window.addEventListener("pointerup", () => {
+    if (!isSeekingMusic) return;
+    isSeekingMusic = false;
+  });
+
+  window.addEventListener("pointercancel", () => {
+    isSeekingMusic = false;
+  });
+
   audio.addEventListener("play", setPlayIcon);
   audio.addEventListener("pause", setPlayIcon);
+  audio.addEventListener("ended", setPlayIcon);
+  audio.addEventListener("timeupdate", () => {
+    if (!isSeekingMusic) {
+      updateMusicProgress();
+    }
+  });
+  audio.addEventListener("loadedmetadata", updateMusicProgress);
+  audio.addEventListener("durationchange", updateMusicProgress);
   setPlayIcon();
   setVolumeIcon();
+  updateMusicProgress();
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>周瀚翔个人主页</title>
+    <title>周瀚翔的个人主页</title>
     <meta
       name="description"
       content="周瀚翔的个人主页：游戏策划、游戏研究、设计笔记与文章归档。"
@@ -11,10 +11,17 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div class="startup-screen" aria-hidden="true">
+      <div class="startup-mark">
+        <span>周瀚翔</span>
+        <strong>Game Design / Essays / Notes</strong>
+      </div>
+    </div>
+
     <header class="site-header">
       <a class="brand" href="#top" aria-label="回到首页">
-        <img class="brand-avatar" src="assets/avatar-placeholder.png" alt="周瀚翔头像占位图" />
-        <span>周瀚翔</span>
+        <img class="brand-avatar" src="assets/myIcon.jpg" alt="周瀚翔头像占位图" />
+        <span>周瀚翔的个人主页</span>
       </a>
       <nav class="nav-links" aria-label="主导航">
         <a href="#about">关于</a>
@@ -50,7 +57,7 @@
       <section class="about-section" id="about">
         <div class="about-copy">
           <p class="eyebrow">About</p>
-          <h2>你好，我是周瀚翔</h2>
+          <h2>我的简介</h2>
           <p class="about-text">
             <i class="bi bi-map" aria-hidden="true"></i>
             我是一名专注箱庭与开放世界的关卡策划、玩法策划，长期关注空间结构、
@@ -71,13 +78,6 @@
           <div>
             <p class="eyebrow">Articles</p>
             <h2>文章</h2>
-          </div>
-          <div class="filters" aria-label="文章分类筛选">
-            <button class="filter active" type="button" data-filter="all">全部</button>
-            <button class="filter" type="button" data-filter="open-world">大世界</button>
-            <button class="filter" type="button" data-filter="level">关卡</button>
-            <button class="filter" type="button" data-filter="system">系统</button>
-            <button class="filter" type="button" data-filter="narrative">叙事</button>
           </div>
         </div>
 
@@ -167,7 +167,12 @@
     </footer>
 
     <div class="music-player" aria-label="背景音乐播放器">
-      <audio class="bg-audio" src="assets/Free From Fear.wav" autoplay loop preload="auto"></audio>
+      <div class="music-tip is-hidden">
+        <span>可以在这里听音乐哦！</span>
+        <span class="music-tip-countdown">3秒</span>
+        <button class="music-tip-button" type="button">好的</button>
+      </div>
+      <audio class="bg-audio" src="assets/Free From Fear.wav" loop preload="auto"></audio>
       <span class="equalizer" aria-hidden="true">
         <span></span>
         <span></span>
@@ -176,11 +181,20 @@
       <span class="song-title">
         Free From Fear <span class="song-credit"> - Made By ZhouHanxiang</span>
       </span>
+      <input
+        class="music-progress"
+        type="range"
+        min="0"
+        max="100"
+        value="0"
+        step="0.1"
+        aria-label="播放进度"
+      />
       <button class="music-button restart-button" type="button" aria-label="重新开始">
         <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
       </button>
-      <button class="music-button play-toggle" type="button" aria-label="暂停音乐">
-        <i class="bi bi-pause-fill" aria-hidden="true"></i>
+      <button class="music-button play-toggle" type="button" aria-label="播放音乐">
+        <i class="bi bi-play-fill" aria-hidden="true"></i>
       </button>
       <button class="music-button volume-toggle" type="button" aria-label="静音">
         <i class="bi bi-volume-up-fill" aria-hidden="true"></i>

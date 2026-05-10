@@ -31,6 +31,51 @@ const sendDirectory = (targetPath, response) => {
   });
 };
 
+const sendFile = (request, response, targetPath, stats) => {
+  const contentType = mimeTypes[path.extname(targetPath)] || "application/octet-stream";
+  const range = request.headers.range;
+
+  if (!range) {
+    response.writeHead(200, {
+      "Accept-Ranges": "bytes",
+      "Content-Length": stats.size,
+      "Content-Type": contentType,
+    });
+    fs.createReadStream(targetPath).pipe(response);
+    return;
+  }
+
+  const rangeMatch = range.match(/^bytes=(\d*)-(\d*)$/);
+  if (!rangeMatch) {
+    response.writeHead(416, { "Content-Range": `bytes */${stats.size}` });
+    response.end();
+    return;
+  }
+
+  let start = rangeMatch[1] ? Number(rangeMatch[1]) : 0;
+  let end = rangeMatch[2] ? Number(rangeMatch[2]) : stats.size - 1;
+
+  if (!rangeMatch[1] && rangeMatch[2]) {
+    const suffixLength = Number(rangeMatch[2]);
+    start = Math.max(stats.size - suffixLength, 0);
+    end = stats.size - 1;
+  }
+
+  if (start >= stats.size || end >= stats.size || start > end) {
+    response.writeHead(416, { "Content-Range": `bytes */${stats.size}` });
+    response.end();
+    return;
+  }
+
+  response.writeHead(206, {
+    "Accept-Ranges": "bytes",
+    "Content-Length": end - start + 1,
+    "Content-Range": `bytes ${start}-${end}/${stats.size}`,
+    "Content-Type": contentType,
+  });
+  fs.createReadStream(targetPath, { start, end }).pipe(response);
+};
+
 const server = http.createServer((request, response) => {
   const requestUrl = new URL(request.url, `http://${host}:${port}`);
   const requestPath = decodeURIComponent(requestUrl.pathname);
@@ -54,10 +99,7 @@ const server = http.createServer((request, response) => {
       return;
     }
 
-    response.writeHead(200, {
-      "Content-Type": mimeTypes[path.extname(targetPath)] || "application/octet-stream",
-    });
-    fs.createReadStream(targetPath).pipe(response);
+    sendFile(request, response, targetPath, stats);
   });
 });
 
