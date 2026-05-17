@@ -16,19 +16,113 @@ const musicTipCountdown = document.querySelector(".music-tip-countdown");
 const musicTipButton = document.querySelector(".music-tip-button");
 const resourceList = document.querySelector(".resource-list");
 const showMoreResources = document.querySelector(".show-more-resources");
+const pageSections = Array.from(document.querySelectorAll(".page-section"));
+const pageLinks = Array.from(document.querySelectorAll('.brand, .nav-links a[href^="#"]'));
+const pagePrev = document.querySelector(".page-prev");
+const pageNext = document.querySelector(".page-next");
+const pageDots = document.querySelector(".page-dots");
 const maxVolume = 0.75;
 const articleListLimit = 4;
 let articleCards = [];
 let markdownFiles = [];
 let selectedArticleCategory = "all";
 let isArticleListExpanded = false;
+let activePageIndex = 0;
 
 const updateMapParallax = () => {
-  document.body.style.setProperty("--map-shift", `${window.scrollY}px`);
+  document.body.style.setProperty("--map-shift", `${activePageIndex * window.innerHeight}px`);
 };
 
-window.addEventListener("scroll", updateMapParallax, { passive: true });
+window.addEventListener("resize", updateMapParallax, { passive: true });
 updateMapParallax();
+
+const getSectionHash = (section) => {
+  if (!section) return "#top";
+  return section.id ? `#${section.id}` : "#top";
+};
+
+const getPageIndexFromHash = (hash) => {
+  if (!hash || hash === "#top") return 0;
+
+  const targetIndex = pageSections.findIndex((section) => getSectionHash(section) === hash);
+  return targetIndex >= 0 ? targetIndex : 0;
+};
+
+const updatePageDots = () => {
+  if (!pageDots) return;
+
+  pageDots.innerHTML = pageSections
+    .map((section, index) => {
+      const title = section.dataset.pageTitle || `第 ${index + 1} 页`;
+      const activeClass = index === activePageIndex ? " is-active" : "";
+      return `<button class="page-dot${activeClass}" type="button" data-page-index="${index}" aria-label="${title}"></button>`;
+    })
+    .join("");
+
+  pageDots.querySelectorAll(".page-dot").forEach((dot) => {
+    dot.addEventListener("click", () => {
+      showPage(Number(dot.dataset.pageIndex));
+    });
+  });
+};
+
+const updatePageNavigation = () => {
+  pageSections.forEach((section, index) => {
+    const isActive = index === activePageIndex;
+    section.classList.toggle("is-active", isActive);
+    section.setAttribute("aria-hidden", isActive ? "false" : "true");
+  });
+
+  pageLinks.forEach((link) => {
+    link.classList.toggle("is-active", getPageIndexFromHash(link.hash) === activePageIndex);
+  });
+
+  if (pagePrev) pagePrev.disabled = activePageIndex === 0;
+  if (pageNext) pageNext.disabled = activePageIndex === pageSections.length - 1;
+
+  updatePageDots();
+  updateMapParallax();
+};
+
+const showPage = (index, shouldUpdateHash = true) => {
+  if (!pageSections.length) return;
+
+  activePageIndex = Math.min(Math.max(index, 0), pageSections.length - 1);
+  updatePageNavigation();
+
+  if (shouldUpdateHash) {
+    const nextHash = getSectionHash(pageSections[activePageIndex]);
+    history.replaceState(null, "", nextHash);
+  }
+};
+
+pageLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    const targetIndex = getPageIndexFromHash(link.hash);
+    event.preventDefault();
+    showPage(targetIndex);
+  });
+});
+
+pagePrev?.addEventListener("click", () => showPage(activePageIndex - 1));
+pageNext?.addEventListener("click", () => showPage(activePageIndex + 1));
+
+window.addEventListener("keydown", (event) => {
+  if (event.defaultPrevented) return;
+  if (["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(document.activeElement?.tagName)) return;
+
+  if (event.key === "ArrowDown" || event.key === "PageDown" || event.key === " ") {
+    event.preventDefault();
+    showPage(activePageIndex + 1);
+  }
+
+  if (event.key === "ArrowUp" || event.key === "PageUp") {
+    event.preventDefault();
+    showPage(activePageIndex - 1);
+  }
+});
+
+showPage(getPageIndexFromHash(window.location.hash), false);
 
 const categoryLabels = {
   "open-world": "大世界",

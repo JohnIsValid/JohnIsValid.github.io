@@ -33,7 +33,7 @@
     </header>
 
     <main id="top">
-      <section class="hero" aria-labelledby="hero-title">
+      <section class="hero page-section is-active" aria-labelledby="hero-title" data-page-title="首页">
         <img
           class="hero-image"
           src="assets/hero-writing-desk.png"
@@ -54,7 +54,7 @@
         </div>
       </section>
 
-      <section class="about-section" id="about">
+      <section class="about-section page-section" id="about" data-page-title="关于">
         <div class="about-copy">
           <p class="eyebrow">About</p>
           <h2>我的简介</h2>
@@ -73,7 +73,7 @@
         </div>
       </section>
 
-      <section class="section-shell" id="articles">
+      <section class="section-shell page-section" id="articles" data-page-title="文章">
         <div class="section-heading split">
           <div>
             <p class="eyebrow">Articles</p>
@@ -91,7 +91,7 @@
         </article>
       </section>
 
-      <section class="section-shell link-section" id="links">
+      <section class="section-shell link-section page-section" id="links" data-page-title="推荐">
         <div class="section-heading">
           <p class="eyebrow">Curated</p>
           <h2>推荐文章与视频</h2>
@@ -131,7 +131,7 @@
         <button class="show-more-resources" type="button">查看更多</button>
       </section>
 
-      <section class="subscribe-section" id="contact">
+      <section class="subscribe-section page-section" id="contact" data-page-title="联系">
         <div>
           <p class="eyebrow">Contact</p>
           <h2>联系方式</h2>
@@ -160,6 +160,16 @@
         </div>
       </section>
     </main>
+
+    <div class="page-controls" aria-label="页面切换">
+      <button class="page-button page-prev" type="button" aria-label="上一页">
+        <i class="bi bi-chevron-up" aria-hidden="true"></i>
+      </button>
+      <div class="page-dots" aria-label="当前页面"></div>
+      <button class="page-button page-next" type="button" aria-label="下一页">
+        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+      </button>
+    </div>
 
     <footer class="site-footer">
       <span>版权所有 © 2026 周瀚翔. All rights reserved.</span>
