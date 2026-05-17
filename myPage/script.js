@@ -28,6 +28,9 @@ let markdownFiles = [];
 let selectedArticleCategory = "all";
 let isArticleListExpanded = false;
 let activePageIndex = 0;
+let isWheelPaging = false;
+const wheelPageThreshold = 36;
+const wheelPageCooldown = 620;
 
 const updateMapParallax = () => {
   document.body.style.setProperty("--map-shift", `${activePageIndex * window.innerHeight}px`);
@@ -87,10 +90,13 @@ const updatePageNavigation = () => {
 const showPage = (index, shouldUpdateHash = true) => {
   if (!pageSections.length) return;
 
-  activePageIndex = Math.min(Math.max(index, 0), pageSections.length - 1);
+  const nextPageIndex = Math.min(Math.max(index, 0), pageSections.length - 1);
+  const isSamePage = nextPageIndex === activePageIndex;
+
+  activePageIndex = nextPageIndex;
   updatePageNavigation();
 
-  if (shouldUpdateHash) {
+  if (shouldUpdateHash && !isSamePage) {
     const nextHash = getSectionHash(pageSections[activePageIndex]);
     history.replaceState(null, "", nextHash);
   }
@@ -106,6 +112,25 @@ pageLinks.forEach((link) => {
 
 pagePrev?.addEventListener("click", () => showPage(activePageIndex - 1));
 pageNext?.addEventListener("click", () => showPage(activePageIndex + 1));
+
+window.addEventListener(
+  "wheel",
+  (event) => {
+    if (!pageSections.length) return;
+
+    event.preventDefault();
+
+    if (isWheelPaging || Math.abs(event.deltaY) < wheelPageThreshold) return;
+
+    isWheelPaging = true;
+    showPage(activePageIndex + (event.deltaY > 0 ? 1 : -1));
+
+    window.setTimeout(() => {
+      isWheelPaging = false;
+    }, wheelPageCooldown);
+  },
+  { passive: false }
+);
 
 window.addEventListener("keydown", (event) => {
   if (event.defaultPrevented) return;

@@ -21,6 +21,8 @@ html {
   scroll-behavior: smooth;
   height: 100%;
   overflow: hidden;
+  overscroll-behavior: none;
+  scrollbar-width: none;
 }
 
 body {
@@ -39,6 +41,13 @@ body {
   font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   line-height: 1.7;
   overflow: hidden;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
 a {
@@ -135,7 +144,8 @@ a {
 
 main {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100svh;
   overflow: hidden;
 }
 
@@ -198,7 +208,11 @@ main {
 .page-section {
   position: absolute;
   inset: 0;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100svh;
+  max-height: 100vh;
+  max-height: 100svh;
+  overflow: hidden;
   opacity: 0;
   pointer-events: none;
   transform: translateY(24px) scale(0.985);
@@ -370,7 +384,7 @@ h3 {
 .subscribe-section {
   width: min(1160px, calc(100% - 36px));
   margin: 0 auto;
-  padding: 112px 0 96px;
+  padding: 96px 0 88px;
 }
 
 .section-heading {
@@ -505,8 +519,14 @@ h3 {
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid var(--line);
   border-radius: 8px;
-  max-height: min(34vh, 320px);
-  overflow: auto;
+  max-height: min(32vh, 300px);
+  overflow: hidden;
+  scrollbar-width: none;
+}
+
+.markdown-preview::-webkit-scrollbar,
+.nav-links::-webkit-scrollbar {
+  display: none;
 }
 
 .show-more-articles {
@@ -579,7 +599,7 @@ h3 {
 }
 
 .link-section {
-  padding-top: 112px;
+  padding-top: 96px;
 }
 
 .resource-list {
@@ -1074,11 +1094,11 @@ h3 {
   .section-shell,
   .about-section,
   .subscribe-section {
-    padding: 132px 0 88px;
+    padding: 118px 0 82px;
   }
 
   .subscribe-section {
-    padding: 132px 26px 88px;
+    padding: 118px 26px 82px;
   }
 
   .page-controls {
