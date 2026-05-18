@@ -28,11 +28,12 @@
     </div>
 
     <header class="site-header">
-      <a class="brand" href="#top" aria-label="回到首页">
+      <div class="brand" aria-label="站点名称">
         <img class="brand-avatar" src="assets/myIcon.jpg" alt="周瀚翔头像占位图" />
         <span>周瀚翔的个人主页</span>
-      </a>
+      </div>
       <nav class="nav-links" aria-label="主导航">
+        <a href="#top">首页</a>
         <a href="#about">关于</a>
         <a href="#articles">文章</a>
         <a href="#links">推荐</a>
@@ -42,7 +43,22 @@
     </header>
 
     <main id="top">
+      <div class="hud-decor" aria-hidden="true">
+        <span class="hud-rail hud-rail-left"></span>
+        <span class="hud-rail hud-rail-bottom"></span>
+        <span class="hud-corner hud-corner-tl"></span>
+        <span class="hud-corner hud-corner-br"></span>
+        <span class="hud-code hud-code-right">SYS://NODE-07<br />SECTOR 04 / GRID 19<br />ACCESS: READ_ONLY</span>
+        <span class="hud-code hud-code-bottom">0x7A-41  /  ROUTE_SYNC  /  WORLD_CELL_03</span>
+        <span class="hud-code hud-code-left">KERNEL: STABLE<br />CELL HASH: 9F-31-A7</span>
+        <span class="hud-ticks hud-ticks-top"></span>
+        <span class="hud-ticks hud-ticks-right"></span>
+      </div>
       <section class="hero page-section is-active" aria-labelledby="hero-title" data-page-title="首页">
+        <div class="page-title">
+          <p class="eyebrow">Home</p>
+          <h2>首页</h2>
+        </div>
         <img
           class="hero-image"
           src="assets/hero-writing-desk.png"
@@ -60,34 +76,66 @@
             这里记录我作为游戏策划的观察、研究和设计复盘。内容会偏严谨、偏学术，
             也会保留一点黑色幽默。毕竟如果一个系统足够复杂，它迟早会用最荒谬的方式证明自己还活着。
           </p>
+          <div class="hero-clock" aria-label="Beijing time">
+            <span>Beijing Time</span>
+            <time class="beijing-time" datetime=""></time>
+          </div>
         </div>
       </section>
 
       <section class="about-section page-section" id="about" data-page-title="关于">
-        <div class="about-copy">
+        <div class="page-title">
           <p class="eyebrow">About</p>
-          <h2>我的简介</h2>
-          <p class="about-text">
-            <i class="bi bi-map" aria-hidden="true"></i>
-            我是一名专注箱庭与开放世界的关卡策划、玩法策划，长期关注空间结构、
-            探索节奏、战斗遭遇和玩家行为之间的关系。我也擅长虚幻引擎中的蓝图编程、
-            虚幻引擎工具开发，喜欢把设计想法尽快做成能跑、能测、最好还能及时暴露问题的原型。
-          </p>
-          <p class="about-text">
-            <i class="bi bi-controller" aria-hidden="true"></i>
-            我喜欢各类 3A 游戏，比如《生化危机》《辐射》《毁灭战士》《古墓丽影》等。
-            它们分别以不同方式提醒我：一个好关卡既要经得起理性拆解，也要允许玩家在其中犯错、
-            迷路、回头，然后突然意识到设计者早就在角落里等着他。
-          </p>
+          <h2>关于</h2>
+        </div>
+        <div class="about-layout">
+          <div class="about-copy">
+            <p class="about-text">
+              <i class="bi bi-map" aria-hidden="true"></i>
+              我是一名专注箱庭与开放世界的关卡策划、玩法策划，长期关注空间结构、
+              探索节奏、战斗遭遇和玩家行为之间的关系。我也擅长虚幻引擎中的蓝图编程、
+              虚幻引擎工具开发，喜欢把设计想法尽快做成能跑、能测、最好还能及时暴露问题的原型。
+            </p>
+            <p class="about-text">
+              <i class="bi bi-controller" aria-hidden="true"></i>
+              我喜欢各类 3A 游戏，比如《生化危机》《辐射》《毁灭战士》《古墓丽影》等。
+              它们分别以不同方式提醒我：一个好关卡既要经得起理性拆解，也要允许玩家在其中犯错、
+              迷路、回头，然后突然意识到设计者早就在角落里等着他。
+            </p>
+          </div>
+
+          <section class="about-ai-panel" aria-labelledby="about-ai-title">
+            <div class="ai-panel-header">
+              <div>
+                <p class="eyebrow">Personal AI</p>
+                <h3 id="about-ai-title">我的 AI</h3>
+              </div>
+              <span class="ai-status">Standby</span>
+            </div>
+            <div class="ai-chat-preview" aria-label="AI 对话预览">
+              <p class="ai-message ai-message-assistant">
+                你好，我是周瀚翔的 AI 助手。你可以问我关于关卡设计、文章观点、项目经历或作品集的问题。
+              </p>
+              <p class="ai-message ai-message-user">你最常研究哪类关卡问题？</p>
+              <p class="ai-message ai-message-assistant">
+                我会优先聊空间结构、探索节奏、遭遇设计，以及玩家如何在系统里做出有趣但不总是理性的选择。
+              </p>
+            </div>
+            <div class="ai-input-shell" aria-label="AI 输入区">
+              <textarea rows="2" placeholder="输入想问的问题..." aria-label="输入想问的问题"></textarea>
+              <button type="button" disabled>
+                <i class="bi bi-send" aria-hidden="true"></i>
+                <span>发送</span>
+              </button>
+            </div>
+          </section>
         </div>
       </section>
 
       <section class="section-shell page-section" id="articles" data-page-title="文章">
-        <div class="section-heading split">
-          <div>
-            <p class="eyebrow">Articles</p>
-            <h2>文章</h2>
-          </div>
+        <div class="page-title">
+          <p class="eyebrow">Articles</p>
+          <h2>文章</h2>
         </div>
 
         <div class="article-grid" aria-live="polite">
@@ -98,9 +146,9 @@
       </section>
 
       <section class="section-shell link-section page-section" id="links" data-page-title="推荐">
-        <div class="section-heading">
+        <div class="page-title">
           <p class="eyebrow">Curated</p>
-          <h2>推荐文章与视频</h2>
+          <h2>推荐</h2>
         </div>
         <div class="resource-list">
           <a class="resource-row" href="#" target="_blank" rel="noopener noreferrer">
@@ -138,9 +186,11 @@
       </section>
 
       <section class="subscribe-section page-section" id="contact" data-page-title="联系">
-        <div>
+        <div class="page-title">
           <p class="eyebrow">Contact</p>
-          <h2>联系方式</h2>
+          <h2>联系</h2>
+        </div>
+        <div class="contact-intro">
           <p>如果你想交流游戏策划、项目合作或文章里的某个问题，可以通过下面的方式联系我。</p>
         </div>
         <div class="contact-list" aria-label="联系方式">
@@ -219,12 +269,12 @@
         class="volume-slider"
         type="range"
         min="0"
-        max="60"
-        value="30"
+        max="100"
+        value="75"
         aria-label="音量"
       />
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=volume-75"></script>
   </body>
 </html>

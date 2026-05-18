@@ -16,11 +16,12 @@ const musicTipButton = document.querySelector(".music-tip-button");
 const resourceList = document.querySelector(".resource-list");
 const showMoreResources = document.querySelector(".show-more-resources");
 const pageSections = Array.from(document.querySelectorAll(".page-section"));
-const pageLinks = Array.from(document.querySelectorAll('.brand, .nav-links a[href^="#"]'));
+const pageLinks = Array.from(document.querySelectorAll('.nav-links a[href^="#"]'));
 const pagePrev = document.querySelector(".page-prev");
 const pageNext = document.querySelector(".page-next");
 const pageDots = document.querySelector(".page-dots");
-const maxVolume = 0.75;
+const beijingTime = document.querySelector(".beijing-time");
+const maxVolume = 1;
 const articleListLimit = 4;
 let articleCards = [];
 let markdownFiles = [];
@@ -30,6 +31,33 @@ let activePageIndex = 0;
 let isWheelPaging = false;
 const wheelPageThreshold = 36;
 const wheelPageCooldown = 620;
+const beijingTimeZone = "Asia/Shanghai";
+const beijingTimeFormatter = new Intl.DateTimeFormat("zh-CN", {
+  timeZone: beijingTimeZone,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
+
+const getBeijingTimeParts = (date) =>
+  Object.fromEntries(beijingTimeFormatter.formatToParts(date).map((part) => [part.type, part.value]));
+
+const updateBeijingTime = () => {
+  if (!beijingTime) return;
+
+  const parts = getBeijingTimeParts(new Date());
+  const displayTime = `${parts.year}-${parts.month}-${parts.day}\n${parts.hour}:${parts.minute}:${parts.second}`;
+
+  beijingTime.textContent = displayTime;
+  beijingTime.dateTime = `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+08:00`;
+};
+
+updateBeijingTime();
+window.setInterval(updateBeijingTime, 1000);
 
 const updateMapParallax = () => {
   document.body.style.setProperty("--map-shift", `${activePageIndex * window.innerHeight}px`);
@@ -104,8 +132,9 @@ const showPage = (index, shouldUpdateHash = true) => {
 
 pageLinks.forEach((link) => {
   link.addEventListener("click", (event) => {
-    const targetIndex = getPageIndexFromHash(link.hash);
     event.preventDefault();
+
+    const targetIndex = getPageIndexFromHash(link.hash);
     showPage(targetIndex);
   });
 });
@@ -151,7 +180,11 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-showPage(getPageIndexFromHash(window.location.hash), false);
+if (window.location.hash !== "#top") {
+  history.replaceState(null, "", "#top");
+}
+
+showPage(0, false);
 
 const categoryLabels = {
   "open-world": "大世界",
