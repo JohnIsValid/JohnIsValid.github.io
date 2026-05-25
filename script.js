@@ -1,4 +1,3 @@
-const filterButtons = document.querySelectorAll(".filter");
 const articleGrid = document.querySelector(".article-grid");
 const showMoreArticles = document.querySelector(".show-more-articles");
 const copyButtons = document.querySelectorAll(".copy-button");
@@ -14,7 +13,6 @@ const musicTip = document.querySelector(".music-tip");
 const musicTipCountdown = document.querySelector(".music-tip-countdown");
 const musicTipButton = document.querySelector(".music-tip-button");
 const resourceList = document.querySelector(".resource-list");
-const showMoreResources = document.querySelector(".show-more-resources");
 const pageSections = Array.from(document.querySelectorAll(".page-section"));
 const pageLinks = Array.from(document.querySelectorAll('.nav-links a[href^="#"]'));
 const pagePrev = document.querySelector(".page-prev");
@@ -25,7 +23,6 @@ const maxVolume = 1;
 const articleListLimit = 4;
 let articleCards = [];
 let markdownFiles = [];
-let selectedArticleCategory = "all";
 let isArticleListExpanded = false;
 let activePageIndex = 0;
 let isWheelPaging = false;
@@ -59,13 +56,6 @@ const updateBeijingTime = () => {
 updateBeijingTime();
 window.setInterval(updateBeijingTime, 1000);
 
-const updateMapParallax = () => {
-  document.body.style.setProperty("--map-shift", `${activePageIndex * window.innerHeight}px`);
-};
-
-window.addEventListener("resize", updateMapParallax, { passive: true });
-updateMapParallax();
-
 const getSectionHash = (section) => {
   if (!section) return "#top";
   return section.id ? `#${section.id}` : "#top";
@@ -76,6 +66,11 @@ const getPageIndexFromHash = (hash) => {
 
   const targetIndex = pageSections.findIndex((section) => getSectionHash(section) === hash);
   return targetIndex >= 0 ? targetIndex : 0;
+};
+
+const shouldUseNativeScroll = (target) => {
+  const scrollContainer = target?.closest?.(".resource-list");
+  return Boolean(scrollContainer && scrollContainer.scrollHeight > scrollContainer.clientHeight);
 };
 
 const updatePageDots = () => {
@@ -111,7 +106,6 @@ const updatePageNavigation = () => {
   if (pageNext) pageNext.disabled = activePageIndex === pageSections.length - 1;
 
   updatePageDots();
-  updateMapParallax();
 };
 
 const showPage = (index, shouldUpdateHash = true) => {
@@ -150,6 +144,7 @@ window.addEventListener(
   "wheel",
   (event) => {
     if (!pageSections.length) return;
+    if (shouldUseNativeScroll(event.target)) return;
 
     event.preventDefault();
 
@@ -250,12 +245,6 @@ const observeCards = () => {
   articleCards.forEach((card) => cardObserver.observe(card));
 };
 
-const selectArticle = (file) => {
-  articleCards.forEach((card) => {
-    card.classList.toggle("is-active", card.dataset.file === file.url);
-  });
-};
-
 const renderArticleCards = () => {
   if (!articleGrid) return;
 
@@ -267,45 +256,31 @@ const renderArticleCards = () => {
   articleGrid.innerHTML = markdownFiles
     .map(
       (file) => `
-        <button class="article-card" type="button" data-category="${file.category}" data-file="${file.url}">
+        <a class="article-card" href="article.html?file=${encodeURIComponent(file.fileName)}">
           <span class="article-tag">${categoryLabels[file.category] || file.category}</span>
           <h3>${escapeHtml(file.title)}</h3>
           <p>${escapeHtml(file.excerpt)}</p>
-        </button>
+        </a>
       `
     )
     .join("");
 
   articleCards = Array.from(document.querySelectorAll(".article-card"));
-  articleCards.forEach((card) => {
-    const file = markdownFiles.find((item) => item.url === card.dataset.file);
-    card.addEventListener("click", () => selectArticle(file));
-  });
 
   observeCards();
   updateArticleVisibility();
-  selectArticle(markdownFiles[0]);
 };
 
 const updateArticleVisibility = () => {
-  const filteredCards = articleCards.filter(
-    (card) =>
-      selectedArticleCategory === "all" || card.dataset.category === selectedArticleCategory
-  );
-
   articleCards.forEach((card) => {
-    const matchesCategory =
-      selectedArticleCategory === "all" || card.dataset.category === selectedArticleCategory;
-    const filteredIndex = filteredCards.indexOf(card);
-    const exceedsLimit = filteredIndex >= articleListLimit;
+    const exceedsLimit = articleCards.indexOf(card) >= articleListLimit;
 
-    card.classList.toggle("is-hidden", !matchesCategory);
-    card.classList.toggle("is-collapsed", matchesCategory && !isArticleListExpanded && exceedsLimit);
+    card.classList.toggle("is-collapsed", !isArticleListExpanded && exceedsLimit);
   });
 
   if (!showMoreArticles) return;
 
-  const hasMoreArticles = filteredCards.length > articleListLimit;
+  const hasMoreArticles = articleCards.length > articleListLimit;
   showMoreArticles.hidden = !hasMoreArticles;
   showMoreArticles.textContent = isArticleListExpanded ? "收起文章" : "查看更多文章";
 };
@@ -322,6 +297,7 @@ const loadManifestLinks = async () => {
       const url = new URL(file.url, new URL("md/", window.location.href));
 
       return {
+        ...file,
         fileName: file.fileName,
         url: url.href,
       };
@@ -360,15 +336,18 @@ const loadMarkdownFiles = async () => {
 
     markdownFiles = await Promise.all(
       links.map(async (file) => {
-        const response = await fetch(file.url);
-        const content = await response.text();
-        const category = readMeta(content, "category") || "level";
+        let content = "";
+
+        if (!file.title || !file.excerpt || !file.category) {
+          const response = await fetch(file.url);
+          content = await response.text();
+        }
 
         return {
           ...file,
-          category,
-          title: readMeta(content, "title") || getTitle(file.fileName),
-          excerpt: readMeta(content, "excerpt") || getExcerpt(content),
+          category: file.category || readMeta(content, "category") || "level",
+          title: file.title || readMeta(content, "title") || getTitle(file.fileName),
+          excerpt: file.excerpt || readMeta(content, "excerpt") || getExcerpt(content),
         };
       })
     );
@@ -379,17 +358,49 @@ const loadMarkdownFiles = async () => {
   }
 };
 
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    selectedArticleCategory = button.dataset.filter;
-    isArticleListExpanded = false;
-
-    filterButtons.forEach((item) => item.classList.remove("active"));
-    button.classList.add("active");
-
-    updateArticleVisibility();
-  });
+const normalizeResource = (resource) => ({
+  type: resource.type || "",
+  title: resource.title || "",
+  description: resource.description || "",
+  url: resource.url || "#",
 });
+
+const renderResources = (resources) => {
+  if (!resourceList) return;
+  resourceList.classList.add("is-loaded");
+
+  if (!resources.length) {
+    resourceList.innerHTML = '<p class="resource-empty">推荐配置里还没有内容。</p>';
+    return;
+  }
+
+  resourceList.innerHTML = resources
+    .map(
+      (resource) => `
+        <a class="resource-row" href="${escapeHtml(resource.url)}" target="_blank" rel="noopener noreferrer">
+          <span class="resource-type">${escapeHtml(resource.type)}</span>
+          <strong>${escapeHtml(resource.title)}</strong>
+          <span>${escapeHtml(resource.description)}</span>
+        </a>
+      `
+    )
+    .join("");
+};
+
+const loadResources = async () => {
+  if (!resourceList) return;
+
+  try {
+    const response = await fetch("resources.json", { cache: "no-store" });
+    if (!response.ok) throw new Error("推荐配置读取失败");
+
+    const resources = await response.json();
+    renderResources((Array.isArray(resources) ? resources : []).map(normalizeResource));
+  } catch {
+    resourceList.classList.add("is-loaded");
+    resourceList.innerHTML = '<p class="resource-empty">推荐配置读取失败，请检查 resources.json。</p>';
+  }
+};
 
 if (showMoreArticles) {
   showMoreArticles.addEventListener("click", () => {
@@ -399,6 +410,7 @@ if (showMoreArticles) {
 }
 
 loadMarkdownFiles();
+loadResources();
 
 copyButtons.forEach((button) => {
   button.addEventListener("click", async () => {
@@ -416,13 +428,6 @@ copyButtons.forEach((button) => {
     }, 1600);
   });
 });
-
-if (resourceList && showMoreResources) {
-  showMoreResources.addEventListener("click", () => {
-    const isExpanded = resourceList.classList.toggle("is-expanded");
-    showMoreResources.textContent = isExpanded ? "收起" : "查看更多";
-  });
-}
 
 const setPlayIcon = () => {
   if (!audio || !playToggle) return;

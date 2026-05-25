@@ -1,10 +1,16 @@
 [
   {
     "fileName": "关卡平面图.md",
-    "url": "%E5%85%B3%E5%8D%A1%E5%B9%B3%E9%9D%A2%E5%9B%BE.md"
+    "url": "%E5%85%B3%E5%8D%A1%E5%B9%B3%E9%9D%A2%E5%9B%BE.md",
+    "category": "level",
+    "title": "关卡平面图",
+    "excerpt": "关于关卡平面图的用途、要求、工具和迭代方式的整理。"
   },
   {
     "fileName": "关卡设计小技巧.md",
-    "url": "%E5%85%B3%E5%8D%A1%E8%AE%BE%E8%AE%A1%E5%B0%8F%E6%8A%80%E5%B7%A7.md"
+    "url": "%E5%85%B3%E5%8D%A1%E8%AE%BE%E8%AE%A1%E5%B0%8F%E6%8A%80%E5%B7%A7.md",
+    "category": "level",
+    "title": "关卡设计小技巧",
+    "excerpt": "一些用于引导、塑造空间、制造神秘感和控制玩家动线的关卡设计方法。"
   }
 ]

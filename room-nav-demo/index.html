@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>房间导航 Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="demo-shell">
+      <section class="game-panel" aria-label="房间导航大厅">
+        <header class="hud">
+          <div>
+            <h1>房间导航 Demo</h1>
+            <p>点击大厅里的任意位置，小人会走过去；走进门就会进入对应网页。</p>
+          </div>
+          <a class="home-link" href="../index.html#top">返回原主页</a>
+        </header>
+
+        <div class="world" aria-live="polite">
+          <div class="room room-articles" data-room="articles">
+            <span>文章室</span>
+            <small>Articles</small>
+          </div>
+          <div class="room room-recommend" data-room="recommend">
+            <span>推荐室</span>
+            <small>Curated</small>
+          </div>
+          <div class="room room-resume" data-room="resume">
+            <span>简历室</span>
+            <small>Resume</small>
+          </div>
+          <div class="room room-contact" data-room="contact">
+            <span>联系室</span>
+            <small>Contact</small>
+          </div>
+
+          <div class="corridor corridor-horizontal"></div>
+          <div class="corridor corridor-vertical"></div>
+          <div class="spawn-mark">大厅</div>
+
+          <div class="player" aria-label="小人">
+            <span class="player-head"></span>
+            <span class="player-body"></span>
+          </div>
+        </div>
+
+        <div class="status-bar">
+          <span class="status-text">点击地面让小人移动，靠近一个房间门试试看。</span>
+          <span>进入后点击页面里的“回到大厅”，小人会从对应房间门口出现。</span>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
