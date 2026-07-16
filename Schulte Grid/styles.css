@@ -41,6 +41,7 @@ button { font: inherit; }
   display: grid;
   place-items: center;
   padding: 22px;
+  overflow-y: auto;
   background:
     radial-gradient(circle at 12% 12%, rgba(242, 188, 94, 0.3), transparent 26rem),
     radial-gradient(circle at 88% 88%, rgba(70, 151, 145, 0.25), transparent 26rem),
@@ -51,7 +52,7 @@ button { font: inherit; }
 .setup-screen[hidden] { display: none; }
 
 .setup-card {
-  width: min(92vw, 560px);
+  width: min(92vw, 660px);
   padding: clamp(28px, 6vw, 48px);
   border: 1px solid rgba(57, 49, 38, .1);
   border-radius: 30px;
@@ -67,7 +68,48 @@ button { font: inherit; }
   letter-spacing: -.05em;
 }
 
-.setup-card > p:not(.eyebrow) { margin: 12px 0 28px; color: var(--muted); }
+.setup-intro { margin: 12px 0 22px; color: var(--muted); }
+
+.training-benefits {
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid rgba(30, 29, 26, .1);
+  border-radius: 20px;
+  background: rgba(245, 239, 229, .6);
+  text-align: left;
+}
+
+.training-benefits h3 {
+  margin: 0 0 14px;
+  font-size: .9rem;
+  letter-spacing: .04em;
+  text-align: center;
+}
+
+.benefit-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.benefit-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 8px;
+  align-content: start;
+}
+
+.benefit-item > span {
+  grid-row: 1 / span 2;
+  color: var(--accent);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.benefit-item strong { font-size: .86rem; }
+.benefit-item p { grid-column: 2; margin: 0; color: var(--muted); font-size: .72rem; line-height: 1.55; }
+.training-benefits .benefit-note { margin: 14px 0 0; color: var(--muted); font-size: .7rem; text-align: center; }
 
 .size-options {
   display: grid;
@@ -245,6 +287,12 @@ footer { display: grid; grid-template-columns: auto 1fr auto; align-items: cente
   .status-panel { margin-top: 24px; padding: 14px 18px; }
   .size-options { gap: 9px; }
   .size-options button { padding: 16px 8px; }
+  .setup-screen { place-items: start center; padding: 14px; }
+  .setup-card { padding: 26px 18px; border-radius: 24px; }
+  .setup-card h2 { font-size: 2.35rem; }
+  .training-benefits { padding: 14px; }
+  .benefit-list { grid-template-columns: 1fr; gap: 10px; }
+  .benefit-item { grid-template-columns: 26px 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
