@@ -5,6 +5,118 @@
   font-display: swap;
 }
 
+/* Projects */
+.project-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 680px);
+  gap: 18px;
+}
+
+.project-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  min-height: 142px;
+  padding: 24px 26px;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(rgba(118, 196, 133, 0.034) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(118, 196, 133, 0.034) 1px, transparent 1px),
+    rgba(8, 22, 16, 0.82);
+  background-size: 18px 18px;
+  box-shadow: inset 3px 0 0 var(--accent), var(--shadow);
+  overflow: hidden;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.project-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 55%, rgba(118, 196, 133, 0.08));
+}
+
+.project-card:hover,
+.project-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent), 0 0 28px rgba(118, 196, 133, 0.25);
+}
+
+.project-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.project-icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  color: var(--accent);
+  font-size: 31px;
+  border: 1px solid var(--line);
+  background: rgba(118, 196, 133, 0.08);
+}
+
+.project-copy {
+  display: grid;
+  gap: 7px;
+}
+
+.project-kicker {
+  color: var(--accent);
+  font-family: var(--pixel-font);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.project-copy strong {
+  font-size: clamp(1.28rem, 2.2vw, 1.72rem);
+  letter-spacing: 0.04em;
+}
+
+.project-copy > span:last-child {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.project-action {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-family: var(--pixel-font);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .project-card {
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .project-icon {
+    width: 58px;
+    height: 58px;
+    font-size: 25px;
+  }
+
+  .project-action {
+    grid-column: 2;
+  }
+}
+
 :root {
   --pixel-font: "Zpix", "Fusion Pixel 12px Monospaced SC", "Cubic 11", "Lucida Console", "Cascadia Mono", "Courier New", "SimSun", monospace;
   --ink: #17211f;
