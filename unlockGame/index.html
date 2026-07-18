@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#05070d" />
+    <title>核心解锁</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="back-link" href="../index.html" aria-label="返回主页">← 返回主页</a>
+
+    <main class="game-shell">
+      <header class="game-header">
+        <p class="eyebrow">CORE ACCESS / 01</p>
+        <h1>找到解锁点</h1>
+        <p class="intro">在球体内选择一点并持续按住。扫描环收缩得越完整，代表离正确位置越近。</p>
+      </header>
+
+      <section class="game-stage" aria-label="解锁小游戏">
+        <div class="orb-wrap">
+          <div class="orbit orbit-one" aria-hidden="true"></div>
+          <div class="orbit orbit-two" aria-hidden="true"></div>
+          <div
+            class="orb"
+            id="orb"
+            role="button"
+            tabindex="0"
+            aria-label="解锁球体，在球体内选择位置并持续按住"
+          >
+            <span class="orb-glow" aria-hidden="true"></span>
+            <span class="orb-grid" aria-hidden="true"></span>
+            <span class="target-range" id="targetRange" aria-hidden="true"></span>
+            <span class="scan-ring" id="scanRing" aria-hidden="true"></span>
+            <span class="scan-point" id="scanPoint" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <div class="feedback" aria-live="polite">
+          <p class="status" id="status">等待接触</p>
+          <div class="signal-track" aria-hidden="true">
+            <span id="signalBar"></span>
+          </div>
+          <p class="hint" id="hint">按住球体中的任意一点开始扫描</p>
+        </div>
+      </section>
+    </main>
+
+    <div class="unlock-layer" id="unlockLayer" aria-hidden="true">
+      <div class="unlock-flash"></div>
+      <div class="unlock-wave wave-one"></div>
+      <div class="unlock-wave wave-two"></div>
+      <div class="unlock-wave wave-three"></div>
+      <div class="unlock-message">
+        <span class="lock-mark" aria-hidden="true"></span>
+        <p>ACCESS GRANTED</p>
+        <h2>解锁成功</h2>
+        <button type="button" id="restartButton">再次挑战</button>
+      </div>
+      <div class="particles" id="particles" aria-hidden="true"></div>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>

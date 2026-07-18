@@ -136,6 +136,62 @@ button { font: inherit; }
 .size-options span { color: var(--muted); font-size: .78rem; }
 .size-options button:hover span { color: rgba(255,255,255,.65); }
 
+.setup-back {
+  display: block;
+  margin: -12px 0 22px;
+  padding: 0;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.setup-back:hover { color: var(--ink); }
+
+.color-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.color-options > button {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 20px 12px;
+  border: 1px solid rgba(30, 29, 26, .12);
+  border-radius: 18px;
+  color: var(--ink);
+  background: #fffdf8;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.color-options > button:hover {
+  transform: translateY(-3px);
+  border-color: rgba(30, 29, 26, .28);
+  box-shadow: 0 12px 24px rgba(40, 31, 20, .09);
+}
+
+.color-options > button > span:last-child { color: var(--muted); font-size: .76rem; }
+
+.color-preview {
+  display: grid;
+  width: min(100%, 176px);
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+}
+
+.color-preview i { aspect-ratio: 1; border-radius: 5px; }
+.varied-preview i:nth-child(1) { background: #f3b94e; }
+.varied-preview i:nth-child(2) { background: #e9664f; }
+.varied-preview i:nth-child(3) { background: #62b1a8; }
+.varied-preview i:nth-child(4) { background: #80aede; }
+.varied-preview i:nth-child(5) { background: #b28ac7; }
+.same-preview i { background: #f3b94e; }
+
 .game-shell {
   width: min(94vw, 670px);
   margin: 36px auto;
@@ -243,6 +299,7 @@ h1 {
 .color-2 { background: #62b1a8; }
 .color-3 { background: #80aede; }
 .color-4 { background: #b28ac7; }
+.color-same { background: #f3b94e; }
 
 .completion-card {
   position: absolute;
@@ -287,6 +344,9 @@ footer { display: grid; grid-template-columns: auto 1fr auto; align-items: cente
   .status-panel { margin-top: 24px; padding: 14px 18px; }
   .size-options { gap: 9px; }
   .size-options button { padding: 16px 8px; }
+  .color-options { grid-template-columns: 1fr; gap: 9px; }
+  .color-options > button { padding: 15px 12px; }
+  .color-preview { width: min(100%, 150px); }
   .setup-screen { place-items: start center; padding: 14px; }
   .setup-card { padding: 26px 18px; border-radius: 24px; }
   .setup-card h2 { font-size: 2.35rem; }

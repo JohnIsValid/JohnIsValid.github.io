@@ -11,8 +11,9 @@
     <section class="setup-screen" id="setupScreen" aria-labelledby="setupTitle">
       <div class="setup-card">
         <p class="eyebrow">NUMBER SPRINT</p>
-        <h2 id="setupTitle">选择棋盘</h2>
-        <p class="setup-intro">棋盘越大，越考验你的眼力和专注力。</p>
+        <div id="sizeStep">
+          <h2 id="setupTitle">选择棋盘</h2>
+          <p class="setup-intro">棋盘越大，越考验你的眼力和专注力。</p>
         <section class="training-benefits" aria-labelledby="benefitsTitle">
           <h3 id="benefitsTitle">舒尔特网格训练的好处</h3>
           <div class="benefit-list">
@@ -39,6 +40,26 @@
           <button type="button" data-size="5"><strong>5 × 5</strong><span>25 个数字</span></button>
           <button type="button" data-size="6"><strong>6 × 6</strong><span>36 个数字</span></button>
           <button type="button" data-size="7"><strong>7 × 7</strong><span>49 个数字</span></button>
+        </div>
+        </div>
+
+        <div id="colorStep" hidden>
+          <button class="setup-back" id="backToSizeButton" type="button">← 返回选择棋盘</button>
+          <p class="eyebrow">第二步</p>
+          <h2 id="colorTitle">选择格子颜色</h2>
+          <p class="setup-intro" id="selectedSizeSummary">已选择 5 × 5 棋盘</p>
+          <div class="color-options" aria-label="格子颜色模式">
+            <button type="button" data-color-mode="varied">
+              <span class="color-preview varied-preview" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+              <strong>每格不同颜色</strong>
+              <span>多种颜色增加视觉干扰</span>
+            </button>
+            <button type="button" data-color-mode="same">
+              <span class="color-preview same-preview" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+              <strong>所有格子相同颜色</strong>
+              <span>分档时间均缩短 8 秒</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>

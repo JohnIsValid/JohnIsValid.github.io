@@ -16,6 +16,11 @@ const gameTitle = document.querySelector("#gameTitle");
 const gameSubtitle = document.querySelector("#gameSubtitle");
 const maxNumberElement = document.querySelector("#maxNumber");
 const sizeButtons = document.querySelectorAll("[data-size]");
+const colorModeButtons = document.querySelectorAll("[data-color-mode]");
+const sizeStep = document.querySelector("#sizeStep");
+const colorStep = document.querySelector("#colorStep");
+const selectedSizeSummary = document.querySelector("#selectedSizeSummary");
+const backToSizeButton = document.querySelector("#backToSizeButton");
 
 let gridSize = 5;
 let totalNumbers = 25;
@@ -24,6 +29,7 @@ let startTime = 0;
 let elapsedTime = 0;
 let timerFrame = null;
 let state = "selecting";
+let colorMode = "varied";
 
 function shuffle(values) {
   const result = [...values];
@@ -98,8 +104,9 @@ function formatTime(milliseconds) {
 }
 
 function getRatingLimits() {
-  const excellentLimit = totalNumbers;
-  const okayLimit = Math.round(totalNumbers * 12) / 10;
+  const sameColorAdjustment = colorMode === "same" ? 8 : 0;
+  const excellentLimit = totalNumbers - sameColorAdjustment;
+  const okayLimit = Math.round(totalNumbers * 12) / 10 - sameColorAdjustment;
   return { excellentLimit, okayLimit };
 }
 
@@ -199,7 +206,8 @@ function newGame() {
   completionCard.setAttribute("aria-hidden", "true");
 
   gameTitle.textContent = `顺序 ${totalNumbers}`;
-  gameSubtitle.textContent = `从 1 开始，按顺序点到 ${totalNumbers}。`;
+  const colorDescription = colorMode === "same" ? "同色棋盘" : "多色棋盘";
+  gameSubtitle.textContent = `从 1 开始，按顺序点到 ${totalNumbers} · ${colorDescription}`;
   maxNumberElement.textContent = totalNumbers;
   board.style.setProperty("--grid-size", gridSize);
   board.setAttribute("aria-label", `${gridSize}乘${gridSize}数字游戏棋盘`);
@@ -211,7 +219,9 @@ function newGame() {
   numbers.forEach((number) => {
     const tile = document.createElement("button");
     tile.type = "button";
-    tile.className = `tile color-${numberColors[number - 1]}`;
+    tile.className = colorMode === "same"
+      ? "tile color-same"
+      : `tile color-${numberColors[number - 1]}`;
     tile.dataset.value = number;
     tile.textContent = number;
     tile.setAttribute("aria-label", `数字 ${number}`);
@@ -224,8 +234,24 @@ function newGame() {
 function selectSize(size) {
   gridSize = size;
   totalNumbers = size * size;
+  selectedSizeSummary.textContent = `已选择 ${size} × ${size} 棋盘`;
+  setupScreen.setAttribute("aria-labelledby", "colorTitle");
+  sizeStep.hidden = true;
+  colorStep.hidden = false;
+  colorModeButtons[0].focus();
+}
+
+function selectColorMode(mode) {
+  colorMode = mode;
   setupScreen.hidden = true;
   newGame();
+}
+
+function showSizeStep() {
+  setupScreen.setAttribute("aria-labelledby", "setupTitle");
+  colorStep.hidden = true;
+  sizeStep.hidden = false;
+  setupScreen.querySelector(`[data-size="${gridSize}"]`).focus();
 }
 
 function openSizePicker() {
@@ -233,12 +259,16 @@ function openSizePicker() {
   state = "selecting";
   completionCard.classList.remove("show");
   setupScreen.hidden = false;
-  setupScreen.querySelector(`[data-size="${gridSize}"]`).focus();
+  showSizeStep();
 }
 
 sizeButtons.forEach((button) => {
   button.addEventListener("click", () => selectSize(Number(button.dataset.size)));
 });
+colorModeButtons.forEach((button) => {
+  button.addEventListener("click", () => selectColorMode(button.dataset.colorMode));
+});
+backToSizeButton.addEventListener("click", showSizeStep);
 restartButton.addEventListener("click", newGame);
 playAgainButton.addEventListener("click", newGame);
 changeSizeButton.addEventListener("click", openSizePicker);
