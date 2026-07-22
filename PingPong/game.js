@@ -10,21 +10,30 @@ const soundButton = document.querySelector("#soundButton");
 const scoreValue = document.querySelector("#scoreValue");
 const livesValue = document.querySelector("#livesValue");
 const brickCount = document.querySelector("#brickCount");
+const levelIndicator = document.querySelector("#levelIndicator");
+const levelSelect = document.querySelector("#levelSelect");
 const liveStatus = document.querySelector("#liveStatus");
 
 const WORLD = { width: 1200, height: 720 };
-const BRICK_ROWS = 5;
-const BRICK_COLUMNS = 10;
 const BRICK_COLOR = "#7cf29a";
-const IRON_SLOTS = new Set(["1-2", "1-7", "3-2", "3-7"]);
-const DROP_RATE_SPLIT_ALL = 0.0025;
-const DROP_RATE_PADDLE_BALL = 0.0125;
-const DROP_RATE_WIDE_PADDLE = 0.015;
-const DROP_RATE_FAST_PADDLE = 0.015;
-const BASE_PADDLE_WIDTH = 110;
-const MAX_PADDLE_WIDTH = 182;
-const BASE_PADDLE_SPEED = 650;
-const MAX_PADDLE_SPEED = 790;
+const levelConfig = window.PING_PONG_LEVEL_CONFIG ?? {};
+const configuredLevels = Array.isArray(levelConfig.levels) ? levelConfig.levels : [];
+const levels = configuredLevels.length ? configuredLevels : [{
+  id: 1,
+  name: "默认关卡",
+  layout: ["NNNNNNNNNN", "NNINNNNINN", "NNNNNNNNNN"]
+}];
+const brickSizeConfig = levelConfig.brickSize ?? {};
+const dropConfig = window.PING_PONG_DROP_CONFIG ?? {};
+const upgradeConfig = window.PING_PONG_UPGRADE_CONFIG ?? {};
+const widthUpgrade = upgradeConfig.paddleWidth ?? {};
+const speedUpgrade = upgradeConfig.paddleSpeed ?? {};
+const BASE_PADDLE_WIDTH = widthUpgrade.initial ?? 110;
+const PADDLE_WIDTH_INCREASE = widthUpgrade.increase ?? 18;
+const MAX_PADDLE_WIDTH = widthUpgrade.maximum ?? 182;
+const BASE_PADDLE_SPEED = speedUpgrade.initial ?? 650;
+const PADDLE_SPEED_INCREASE = speedUpgrade.increase ?? 35;
+const MAX_PADDLE_SPEED = speedUpgrade.maximum ?? 790;
 const keys = new Set();
 const paddle = { x: 545, y: 660, width: BASE_PADDLE_WIDTH, height: 14, speed: BASE_PADDLE_SPEED };
 
@@ -33,6 +42,7 @@ let balls = [];
 let powerUps = [];
 let score = 0;
 let lives = 1;
+let currentLevelIndex = Math.max(0, levels.findIndex((level) => level.id === (levelConfig.startLevel ?? 1)));
 let state = "ready";
 let lastTime = performance.now();
 let soundOn = true;
@@ -66,20 +76,24 @@ function makeBall({ x, y, vx = 0, vy = 0, attached = false }) {
 }
 
 function createBricks() {
-  const gap = 2;
-  const brickWidth = 61.5;
-  const brickHeight = 22;
-  const marginX = (WORLD.width - brickWidth * BRICK_COLUMNS - gap * (BRICK_COLUMNS - 1)) / 2;
+  const gap = brickSizeConfig.gap ?? 2;
+  const brickWidth = brickSizeConfig.width ?? 61.5;
+  const brickHeight = brickSizeConfig.height ?? 22;
+  const top = brickSizeConfig.top ?? 72;
+  const layout = levels[currentLevelIndex].layout;
+  const columnCount = Math.max(...layout.map((row) => row.length));
+  const marginX = (WORLD.width - brickWidth * columnCount - gap * (columnCount - 1)) / 2;
   bricks = [];
-  for (let row = 0; row < BRICK_ROWS; row += 1) {
-    for (let column = 0; column < BRICK_COLUMNS; column += 1) {
-      const indestructible = IRON_SLOTS.has(`${row}-${column}`);
+  for (let row = 0; row < layout.length; row += 1) {
+    for (let column = 0; column < layout[row].length; column += 1) {
+      const cell = layout[row][column];
+      if (cell === ".") continue;
       bricks.push({
         x: marginX + column * (brickWidth + gap),
-        y: 72 + row * (brickHeight + gap),
+        y: top + row * (brickHeight + gap),
         width: brickWidth,
         height: brickHeight,
-        indestructible,
+        indestructible: cell === "I",
         active: true
       });
     }
@@ -99,7 +113,19 @@ function resetBalls() {
 function updateHud() {
   scoreValue.textContent = score;
   livesValue.textContent = lives;
+  levelIndicator.textContent = `L${levels[currentLevelIndex].id}`;
+  levelSelect.value = String(currentLevelIndex);
   brickCount.textContent = bricks.filter((brick) => brick.active && !brick.indestructible).length;
+}
+
+function populateLevelSelect() {
+  levelSelect.replaceChildren();
+  levels.forEach((level, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = `第 ${level.id} 关 · ${level.name}`;
+    levelSelect.append(option);
+  });
 }
 
 function showOverlay(kicker, title, copy, buttonLabel) {
@@ -121,23 +147,32 @@ function launchAttachedBalls() {
 }
 
 function startGame() {
-  if (state === "won" || state === "over") restartGame();
+  if (state === "levelComplete") advanceLevel();
+  else if (state === "won" || state === "over") restartGame();
   state = "playing";
   overlay.hidden = true;
   canvas.focus();
   lastTime = performance.now();
 }
 
-function restartGame() {
+function restartGame(levelIndex = currentLevelIndex) {
   score = 0;
   lives = 1;
+  currentLevelIndex = clamp(levelIndex, 0, levels.length - 1);
   paddle.width = BASE_PADDLE_WIDTH;
   paddle.speed = BASE_PADDLE_SPEED;
   createBricks();
   resetBalls();
   updateHud();
   state = "ready";
-  showOverlay("BREAKOUT READY", "准备发球？", "按任意键发射弹球，左右方向键控制挡板。接住掉落可增加弹球或强化挡板。", "开始挑战");
+  showOverlay("BREAKOUT READY", `第 ${levels[currentLevelIndex].id} 关 · ${levels[currentLevelIndex].name}`, "按任意键发射弹球，左右方向键控制挡板。接住掉落可增加弹球或强化挡板。", "开始挑战");
+}
+
+function advanceLevel() {
+  currentLevelIndex += 1;
+  createBricks();
+  resetBalls();
+  updateHud();
 }
 
 function togglePause() {
@@ -163,12 +198,19 @@ function loseGame() {
 }
 
 function winGame() {
-  state = "won";
   for (const ball of balls) { ball.vx = 0; ball.vy = 0; }
   powerUps = [];
   beep(820, 0.25, 0.06);
-  showOverlay("ALL CLEAR", "全部击碎！", `最终得分 ${score}，你成功守住了弹球。`, "再来一局");
-  liveStatus.textContent = "全部砖块已击碎，挑战成功";
+  const hasNextLevel = currentLevelIndex < levels.length - 1;
+  if (hasNextLevel) {
+    state = "levelComplete";
+    showOverlay("LEVEL CLEAR", `第 ${levels[currentLevelIndex].id} 关完成`, `${levels[currentLevelIndex].name}已清除。当前总分 ${score}。`, "下一关");
+    liveStatus.textContent = `第 ${levels[currentLevelIndex].id} 关完成`;
+  } else {
+    state = "won";
+    showOverlay("ALL CLEAR", "全部关卡完成！", `最终得分 ${score}，你完成了全部 ${levels.length} 关。`, "再来一局");
+    liveStatus.textContent = "全部关卡完成";
+  }
 }
 
 function movePaddle(amount) {
@@ -201,12 +243,22 @@ function bounceFromRect(ball, rect, previousX, previousY) {
 }
 
 function maybeDropPowerUp(brick) {
+  const levelId = levels[currentLevelIndex].id;
+  const activeDropRates = dropConfig.levels?.[levelId] ?? dropConfig.defaults ?? {};
+  const splitAllRate = activeDropRates.splitAll ?? 0.0025;
+  const paddleBallRate = activeDropRates.paddleBall ?? 0.0125;
+  const widePaddleRate = paddle.width < MAX_PADDLE_WIDTH
+    ? (activeDropRates.widePaddle ?? 0.015)
+    : 0;
+  const fastPaddleRate = paddle.speed < MAX_PADDLE_SPEED
+    ? (activeDropRates.fastPaddle ?? 0.015)
+    : 0;
   const roll = Math.random();
   let type = null;
-  if (roll < DROP_RATE_SPLIT_ALL) type = "split";
-  else if (roll < DROP_RATE_SPLIT_ALL + DROP_RATE_PADDLE_BALL) type = "paddleBall";
-  else if (roll < DROP_RATE_SPLIT_ALL + DROP_RATE_PADDLE_BALL + DROP_RATE_WIDE_PADDLE) type = "widePaddle";
-  else if (roll < DROP_RATE_SPLIT_ALL + DROP_RATE_PADDLE_BALL + DROP_RATE_WIDE_PADDLE + DROP_RATE_FAST_PADDLE) type = "fastPaddle";
+  if (roll < splitAllRate) type = "split";
+  else if (roll < splitAllRate + paddleBallRate) type = "paddleBall";
+  else if (roll < splitAllRate + paddleBallRate + widePaddleRate) type = "widePaddle";
+  else if (roll < splitAllRate + paddleBallRate + widePaddleRate + fastPaddleRate) type = "fastPaddle";
   if (!type) return;
   powerUps.push({
     x: brick.x + brick.width / 2 - 14,
@@ -252,7 +304,7 @@ function firePaddleBall() {
 
 function widenPaddle() {
   const center = paddle.x + paddle.width / 2;
-  paddle.width = Math.min(paddle.width + 18, MAX_PADDLE_WIDTH);
+  paddle.width = Math.min(paddle.width + PADDLE_WIDTH_INCREASE, MAX_PADDLE_WIDTH);
   paddle.x = clamp(center - paddle.width / 2, 18, WORLD.width - paddle.width - 18);
   movePaddle(0);
   liveStatus.textContent = paddle.width >= MAX_PADDLE_WIDTH
@@ -262,7 +314,7 @@ function widenPaddle() {
 }
 
 function speedUpPaddle() {
-  paddle.speed = Math.min(paddle.speed + 35, MAX_PADDLE_SPEED);
+  paddle.speed = Math.min(paddle.speed + PADDLE_SPEED_INCREASE, MAX_PADDLE_SPEED);
   liveStatus.textContent = paddle.speed >= MAX_PADDLE_SPEED
     ? "挡板已达到最大移动速度"
     : "挡板移动速度提升了一点";
@@ -480,6 +532,7 @@ function frame(now) {
 
 window.addEventListener("resize", resizeCanvas);
 window.addEventListener("keydown", (event) => {
+  if (event.target === levelSelect) return;
   const key = event.key.toLowerCase();
   const waitingToLaunch = state === "playing" && balls.some((ball) => ball.attached);
   if (waitingToLaunch) launchAttachedBalls();
@@ -493,7 +546,10 @@ window.addEventListener("keydown", (event) => {
 });
 window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
 primaryButton.addEventListener("click", () => state === "paused" ? togglePause() : startGame());
-restartButton.addEventListener("click", restartGame);
+restartButton.addEventListener("click", () => restartGame());
+levelSelect.addEventListener("change", (event) => {
+  restartGame(Number(event.target.value));
+});
 soundButton.addEventListener("click", () => {
   soundOn = !soundOn;
   soundButton.textContent = `声音：${soundOn ? "开" : "关"}`;
@@ -504,6 +560,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden && state === "playing" && !balls.some((ball) => ball.attached)) togglePause();
 });
 
+populateLevelSelect();
 createBricks();
 resetBalls();
 updateHud();

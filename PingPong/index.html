@@ -32,7 +32,7 @@
       <section class="arena" aria-label="打砖块游戏区">
         <div class="scoreboard" aria-label="当前游戏状态">
           <div><span>SCORE</span><strong id="scoreValue">0</strong></div>
-          <p id="roundStatus">BRICKS <b id="brickCount">40</b></p>
+          <p id="roundStatus"><span id="levelIndicator">L1</span> · BRICKS <b id="brickCount">40</b></p>
           <div><span>LIVES</span><strong id="livesValue">1</strong></div>
         </div>
 
@@ -54,12 +54,21 @@
 
         <div class="controls">
           <p><kbd>←</kbd><kbd>→</kbd> 移动 · 任意键发球 · 接住掉落道具 · <kbd>空格</kbd> 暂停</p>
+          <label class="level-picker" for="levelSelect">
+            <span>选择关卡</span>
+            <select id="levelSelect" aria-label="选择关卡">
+              <option value="0">第 1 关</option>
+            </select>
+          </label>
           <button class="secondary-button" id="restartButton" type="button">重新开始</button>
         </div>
         <p class="sr-only" id="liveStatus" aria-live="polite"></p>
       </section>
     </main>
 
+    <script src="level-config.js"></script>
+    <script src="drop-config.js"></script>
+    <script src="upgrade-config.js"></script>
     <script src="game.js"></script>
   </body>
 </html>
