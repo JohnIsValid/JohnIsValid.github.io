@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07110d" />
+    <meta
+      name="description"
+      content="霓虹弹球：控制底部挡板接住弹球，击碎场上的全部砖块。"
+    />
+    <title>霓虹弹球｜Neon Breakout</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <main class="game-shell">
+      <header class="topbar">
+        <a class="home-link" href="../index.html#projects">← 返回主页</a>
+        <p class="system-state"><span></span> ARCADE NODE ONLINE</p>
+        <button class="sound-button" id="soundButton" type="button" aria-pressed="true">声音：开</button>
+      </header>
+
+      <section class="intro">
+        <div>
+          <p class="eyebrow">ARCADE / 01</p>
+          <h1>NEON<br /><span>BREAKOUT</span></h1>
+        </div>
+        <p class="intro-copy">移动挡板接住弹球并击碎<strong>全部砖块</strong>。砖块偶尔会掉落稀有道具，必须用挡板接住才能触发。</p>
+      </section>
+
+      <section class="arena" aria-label="打砖块游戏区">
+        <div class="scoreboard" aria-label="当前游戏状态">
+          <div><span>SCORE</span><strong id="scoreValue">0</strong></div>
+          <p id="roundStatus">BRICKS <b id="brickCount">40</b></p>
+          <div><span>LIVES</span><strong id="livesValue">1</strong></div>
+        </div>
+
+        <div class="canvas-wrap" id="canvasWrap">
+            <canvas
+            id="gameCanvas"
+            width="1200"
+            height="720"
+            tabindex="0"
+            aria-label="打砖块球场。使用左右方向键移动底部挡板。开始游戏后按任意键发球。"
+          ></canvas>
+          <div class="game-overlay" id="gameOverlay">
+            <p class="overlay-kicker" id="overlayKicker">MATCH READY</p>
+            <h2 id="overlayTitle">准备开球？</h2>
+            <p id="overlayCopy">按任意键发射弹球，左右方向键控制挡板。接住掉落可增加弹球或强化挡板。</p>
+            <button id="primaryButton" type="button">开始比赛</button>
+          </div>
+        </div>
+
+        <div class="controls">
+          <p><kbd>←</kbd><kbd>→</kbd> 移动 · 任意键发球 · 接住掉落道具 · <kbd>空格</kbd> 暂停</p>
+          <button class="secondary-button" id="restartButton" type="button">重新开始</button>
+        </div>
+        <p class="sr-only" id="liveStatus" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>

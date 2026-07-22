@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#102922" />
+    <meta name="description" content="回路花园：观察符号，在网格中画出一条满足所有规则的路径。" />
+    <title>回路花园｜线条解谜</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+    <main class="game-shell">
+      <header class="topbar">
+        <a class="home-link" href="../index.html#projects" aria-label="返回个人主页的项目区">← 返回主页</a>
+        <p class="chapter-label" id="chapterLabel">第一章 · 萌芽</p>
+        <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">声音：开</button>
+      </header>
+
+      <section class="game-layout">
+        <aside class="intro-panel">
+          <p class="eyebrow">LINE PUZZLE</p>
+          <h1 id="gameTitle">回路花园</h1>
+          <p class="subtitle" id="gameSubtitle">观察符号，画出唯一属于你的路径</p>
+
+          <div class="level-copy">
+            <span class="level-number" id="levelNumber">01 / 50</span>
+            <h2 id="levelName">初见</h2>
+            <p id="levelHint">从左下角出发，抵达右上方的出口。</p>
+          </div>
+
+          <section class="rules-card" aria-labelledby="rulesTitle">
+            <h3 id="rulesTitle">本关规则</h3>
+            <ul id="activeRules"></ul>
+          </section>
+        </aside>
+
+        <section class="puzzle-panel" aria-label="解谜区域">
+          <div class="canvas-frame" id="canvasFrame">
+            <canvas id="puzzleCanvas" tabindex="0" aria-label="线条解谜棋盘。按空格开始，使用方向键画线。"></canvas>
+            <div class="result-card" id="resultCard" hidden>
+              <span class="result-mark" aria-hidden="true">✦</span>
+              <p>路径成立</p>
+              <strong id="resultTitle">花园苏醒了</strong>
+              <button id="nextLevelButton" type="button">进入下一关</button>
+            </div>
+          </div>
+          <p class="status-message" id="statusMessage" role="status" aria-live="polite">从发光圆点开始拖动。也可以按空格，再用方向键画线。</p>
+          <div class="puzzle-actions">
+            <button id="resetButton" type="button">重画路径</button>
+            <button id="rulesButton" type="button">查看全部规则</button>
+          </div>
+        </section>
+      </section>
+
+      <nav class="level-nav" aria-label="关卡选择">
+        <button class="nav-arrow" id="previousButton" type="button" aria-label="上一关">←</button>
+        <div class="level-dots" id="levelDots"></div>
+        <button class="nav-arrow" id="followingButton" type="button" aria-label="下一关">→</button>
+      </nav>
+    </main>
+
+    <dialog id="rulesDialog">
+      <button class="dialog-close" id="closeRulesButton" type="button" aria-label="关闭规则">×</button>
+      <p class="eyebrow">FIELD NOTES</p>
+      <h2>花园符号手册</h2>
+      <div class="rule-guide" id="ruleGuide"></div>
+    </dialog>
+
+    <script src="config.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>
