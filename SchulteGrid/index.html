@@ -61,6 +61,25 @@
             </button>
           </div>
         </div>
+
+        <div id="challengeStep" hidden>
+          <button class="setup-back" id="backToColorButton" type="button">← 返回选择颜色</button>
+          <p class="eyebrow">第三步</p>
+          <h2 id="challengeTitle">选择挑战模式</h2>
+          <p class="setup-intro" id="selectedModeSummary">已选择 5 × 5 · 多色棋盘</p>
+          <div class="trial-options" aria-label="挑战模式">
+            <button type="button" data-ultimate-trial="false">
+              <span class="trial-mark" aria-hidden="true">STANDARD</span>
+              <strong>经典挑战</strong>
+              <span>棋盘保持不变，按顺序寻找全部数字</span>
+            </button>
+            <button class="ultimate-option" type="button" data-ultimate-trial="true">
+              <span class="trial-mark" aria-hidden="true">ULTIMATE</span>
+              <strong>终极试炼</strong>
+              <span>每次选对后棋盘重新排列，评分时间增加 45%</span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -102,6 +121,24 @@
           <div class="rating-badge" id="ratingBadge">优秀</div>
           <span class="rating-note" id="ratingNote"></span>
           <p class="rating-guide" id="ratingGuide"></p>
+          <section class="click-analysis" aria-labelledby="clickAnalysisTitle">
+            <div class="analysis-heading">
+              <div>
+                <p class="analysis-kicker">PACE ANALYSIS</p>
+                <h2 id="clickAnalysisTitle">逐次点击耗时</h2>
+              </div>
+              <p>每个点表示从上一个正确数字到找到下一个数字所用的时间</p>
+            </div>
+            <div class="analysis-stats" aria-label="点击耗时摘要">
+              <div><span>平均</span><strong id="averageClickTime">0.00 秒</strong></div>
+              <div><span>最快</span><strong id="fastestClickTime">0.00 秒</strong></div>
+              <div><span>最慢</span><strong id="slowestClickTime">0.00 秒</strong></div>
+            </div>
+            <div class="chart-container">
+              <canvas id="clickTimeChart" role="img" aria-label="每次寻找下一个数字的耗时曲线图"></canvas>
+            </div>
+            <div class="click-time-list" id="clickTimeList" aria-label="每次点击耗时明细"></div>
+          </section>
           <button id="playAgainButton" type="button">再玩一次</button>
         </div>
       </section>

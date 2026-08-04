@@ -8,6 +8,11 @@ const finalTimeElement = document.querySelector("#finalTime");
 const ratingBadge = document.querySelector("#ratingBadge");
 const ratingNote = document.querySelector("#ratingNote");
 const ratingGuide = document.querySelector("#ratingGuide");
+const averageClickTimeElement = document.querySelector("#averageClickTime");
+const fastestClickTimeElement = document.querySelector("#fastestClickTime");
+const slowestClickTimeElement = document.querySelector("#slowestClickTime");
+const clickTimeChart = document.querySelector("#clickTimeChart");
+const clickTimeList = document.querySelector("#clickTimeList");
 const restartButton = document.querySelector("#restartButton");
 const playAgainButton = document.querySelector("#playAgainButton");
 const setupScreen = document.querySelector("#setupScreen");
@@ -17,10 +22,14 @@ const gameSubtitle = document.querySelector("#gameSubtitle");
 const maxNumberElement = document.querySelector("#maxNumber");
 const sizeButtons = document.querySelectorAll("[data-size]");
 const colorModeButtons = document.querySelectorAll("[data-color-mode]");
+const trialModeButtons = document.querySelectorAll("[data-ultimate-trial]");
 const sizeStep = document.querySelector("#sizeStep");
 const colorStep = document.querySelector("#colorStep");
+const challengeStep = document.querySelector("#challengeStep");
 const selectedSizeSummary = document.querySelector("#selectedSizeSummary");
+const selectedModeSummary = document.querySelector("#selectedModeSummary");
 const backToSizeButton = document.querySelector("#backToSizeButton");
+const backToColorButton = document.querySelector("#backToColorButton");
 
 let gridSize = 5;
 let totalNumbers = 25;
@@ -30,6 +39,9 @@ let elapsedTime = 0;
 let timerFrame = null;
 let state = "selecting";
 let colorMode = "varied";
+let ultimateTrial = false;
+let lastCorrectClickTime = 0;
+let clickDurations = [];
 
 function shuffle(values) {
   const result = [...values];
@@ -103,10 +115,19 @@ function formatTime(milliseconds) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(centiseconds).padStart(2, "0")}`;
 }
 
+function formatDuration(milliseconds) {
+  return `${(milliseconds / 1000).toFixed(2)} 秒`;
+}
+
 function getRatingLimits() {
   const sameColorAdjustment = colorMode === "same" ? 8 : 0;
-  const excellentLimit = totalNumbers - sameColorAdjustment;
-  const okayLimit = Math.round(totalNumbers * 12) / 10 - sameColorAdjustment;
+  const trialTimeMultiplier = ultimateTrial ? 1.45 : 1;
+  const excellentLimit = Math.round(
+    (totalNumbers - sameColorAdjustment) * trialTimeMultiplier * 100,
+  ) / 100;
+  const okayLimit = Math.round(
+    (Math.round(totalNumbers * 12) / 10 - sameColorAdjustment) * trialTimeMultiplier * 100,
+  ) / 100;
   return { excellentLimit, okayLimit };
 }
 
@@ -130,16 +151,127 @@ function updateTimer(now) {
   timerFrame = requestAnimationFrame(updateTimer);
 }
 
-function startTimer() {
+function startTimer(now = performance.now()) {
   if (state !== "ready") return;
   state = "running";
-  startTime = performance.now();
+  startTime = now;
+  lastCorrectClickTime = now;
   hintElement.textContent = "保持节奏，继续！";
   timerFrame = requestAnimationFrame(updateTimer);
 }
 
-function finishGame() {
-  elapsedTime = performance.now() - startTime;
+function getRunningHint() {
+  return ultimateTrial ? `棋盘已刷新，寻找 ${expectedNumber}` : "保持节奏，继续！";
+}
+
+function drawClickTimeChart() {
+  const context = clickTimeChart.getContext("2d");
+  const rect = clickTimeChart.getBoundingClientRect();
+  const width = Math.max(280, rect.width);
+  const height = Math.max(180, rect.height);
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+
+  clickTimeChart.width = Math.round(width * pixelRatio);
+  clickTimeChart.height = Math.round(height * pixelRatio);
+  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  context.clearRect(0, 0, width, height);
+
+  if (!clickDurations.length) return;
+
+  const padding = { top: 16, right: 14, bottom: 30, left: 44 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const maxDuration = Math.max(...clickDurations.map((item) => item.duration));
+  const axisMax = Math.max(500, Math.ceil(maxDuration / 500) * 500);
+  const xForIndex = (index) => padding.left
+    + (clickDurations.length === 1 ? chartWidth / 2 : (index / (clickDurations.length - 1)) * chartWidth);
+  const yForDuration = (duration) => padding.top + chartHeight - (duration / axisMax) * chartHeight;
+
+  context.font = '11px Inter, "PingFang SC", sans-serif';
+  context.textBaseline = "middle";
+  context.lineWidth = 1;
+  for (let step = 0; step <= 4; step += 1) {
+    const y = padding.top + (chartHeight / 4) * step;
+    const value = axisMax * (1 - step / 4);
+    context.strokeStyle = "rgba(30, 29, 26, .09)";
+    context.beginPath();
+    context.moveTo(padding.left, y);
+    context.lineTo(width - padding.right, y);
+    context.stroke();
+    context.fillStyle = "#8a877f";
+    context.textAlign = "right";
+    context.fillText(`${(value / 1000).toFixed(1)}s`, padding.left - 8, y);
+  }
+
+  const labelEvery = Math.max(1, Math.ceil(clickDurations.length / 7));
+  clickDurations.forEach((item, index) => {
+    if (index % labelEvery !== 0 && index !== clickDurations.length - 1) return;
+    context.fillStyle = "#8a877f";
+    context.textAlign = "center";
+    context.fillText(String(item.number), xForIndex(index), height - 11);
+  });
+
+  const areaGradient = context.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+  areaGradient.addColorStop(0, "rgba(232, 75, 53, .24)");
+  areaGradient.addColorStop(1, "rgba(232, 75, 53, 0)");
+  context.beginPath();
+  context.moveTo(xForIndex(0), padding.top + chartHeight);
+  clickDurations.forEach((item, index) => {
+    context.lineTo(xForIndex(index), yForDuration(item.duration));
+  });
+  context.lineTo(xForIndex(clickDurations.length - 1), padding.top + chartHeight);
+  context.closePath();
+  context.fillStyle = areaGradient;
+  context.fill();
+
+  context.beginPath();
+  clickDurations.forEach((item, index) => {
+    const x = xForIndex(index);
+    const y = yForDuration(item.duration);
+    if (index === 0) context.moveTo(x, y);
+    else context.lineTo(x, y);
+  });
+  context.strokeStyle = "#e84b35";
+  context.lineWidth = 2.5;
+  context.lineJoin = "round";
+  context.lineCap = "round";
+  context.stroke();
+
+  clickDurations.forEach((item, index) => {
+    context.beginPath();
+    context.arc(xForIndex(index), yForDuration(item.duration), 3.2, 0, Math.PI * 2);
+    context.fillStyle = "#fffdf8";
+    context.fill();
+    context.strokeStyle = "#e84b35";
+    context.lineWidth = 2;
+    context.stroke();
+  });
+}
+
+function renderClickAnalysis() {
+  const durations = clickDurations.map((item) => item.duration);
+  const average = durations.reduce((sum, duration) => sum + duration, 0) / durations.length;
+  const fastest = Math.min(...durations);
+  const slowest = Math.max(...durations);
+
+  averageClickTimeElement.textContent = formatDuration(average);
+  fastestClickTimeElement.textContent = formatDuration(fastest);
+  slowestClickTimeElement.textContent = formatDuration(slowest);
+  clickTimeList.replaceChildren();
+
+  const fragment = document.createDocumentFragment();
+  clickDurations.forEach((item) => {
+    const entry = document.createElement("div");
+    entry.className = "click-time-entry";
+    entry.innerHTML = `<span>寻找 ${item.number}</span><strong>${formatDuration(item.duration)}</strong>`;
+    fragment.appendChild(entry);
+  });
+  clickTimeList.appendChild(fragment);
+  requestAnimationFrame(drawClickTimeChart);
+}
+
+function finishGame(now = performance.now()) {
+  elapsedTime = now - startTime;
   const rating = getRating(elapsedTime);
   const { excellentLimit, okayLimit } = getRatingLimits();
   state = "complete";
@@ -154,6 +286,7 @@ function finishGame() {
   hintElement.textContent = "漂亮！你已经完成全部数字";
   completionCard.classList.add("show");
   completionCard.setAttribute("aria-hidden", "false");
+  renderClickAnalysis();
   playAgainButton.focus();
 }
 
@@ -165,7 +298,7 @@ function showWrongChoice(tile) {
   hintElement.textContent = `现在要找的是 ${expectedNumber}`;
   window.setTimeout(() => {
     hintElement.classList.remove("error");
-    if (state === "running") hintElement.textContent = "保持节奏，继续！";
+    if (state === "running") hintElement.textContent = getRunningHint();
   }, 650);
 }
 
@@ -178,40 +311,35 @@ function handleTileClick(event) {
     return;
   }
 
-  if (expectedNumber === 1) startTimer();
+  const clickTime = performance.now();
+  if (expectedNumber === 1) {
+    startTimer(clickTime);
+  } else {
+    clickDurations.push({
+      number: value,
+      duration: clickTime - lastCorrectClickTime,
+    });
+    lastCorrectClickTime = clickTime;
+  }
   tile.classList.add("done");
   tile.disabled = true;
   expectedNumber += 1;
   progressBar.style.width = `${((expectedNumber - 1) / totalNumbers) * 100}%`;
 
   if (expectedNumber === totalNumbers + 1) {
-    finishGame();
+    finishGame(clickTime);
   } else {
     nextNumberElement.textContent = expectedNumber;
+    if (ultimateTrial) {
+      renderBoard();
+      hintElement.textContent = getRunningHint();
+    }
   }
 }
 
-function newGame() {
-  cancelAnimationFrame(timerFrame);
-  expectedNumber = 1;
-  startTime = 0;
-  elapsedTime = 0;
-  state = "ready";
-  timerElement.textContent = "00:00.00";
-  nextNumberElement.textContent = "1";
-  hintElement.textContent = "点击数字 1，计时开始";
-  hintElement.classList.remove("error");
-  progressBar.style.width = "0%";
-  completionCard.classList.remove("show");
-  completionCard.setAttribute("aria-hidden", "true");
-
-  gameTitle.textContent = `顺序 ${totalNumbers}`;
-  const colorDescription = colorMode === "same" ? "同色棋盘" : "多色棋盘";
-  gameSubtitle.textContent = `从 1 开始，按顺序点到 ${totalNumbers} · ${colorDescription}`;
-  maxNumberElement.textContent = totalNumbers;
+function renderBoard() {
   board.style.setProperty("--grid-size", gridSize);
   board.setAttribute("aria-label", `${gridSize}乘${gridSize}数字游戏棋盘`);
-
   board.replaceChildren();
   const numbers = createNumberLayout(gridSize);
   const numberColors = createNumberColors(numbers, gridSize);
@@ -225,10 +353,46 @@ function newGame() {
     tile.dataset.value = number;
     tile.textContent = number;
     tile.setAttribute("aria-label", `数字 ${number}`);
+    if (number < expectedNumber) {
+      tile.classList.add("done");
+      tile.disabled = true;
+    }
     tile.addEventListener("click", handleTileClick);
     fragment.appendChild(tile);
   });
   board.appendChild(fragment);
+
+  if (ultimateTrial && expectedNumber > 1) {
+    board.classList.remove("refreshing");
+    void board.offsetWidth;
+    board.classList.add("refreshing");
+  }
+}
+
+function newGame() {
+  cancelAnimationFrame(timerFrame);
+  expectedNumber = 1;
+  startTime = 0;
+  elapsedTime = 0;
+  lastCorrectClickTime = 0;
+  clickDurations = [];
+  state = "ready";
+  timerElement.textContent = "00:00.00";
+  nextNumberElement.textContent = "1";
+  hintElement.textContent = ultimateTrial
+    ? "点击数字 1；每次选对后棋盘都会刷新"
+    : "点击数字 1，计时开始";
+  hintElement.classList.remove("error");
+  progressBar.style.width = "0%";
+  completionCard.classList.remove("show");
+  completionCard.setAttribute("aria-hidden", "true");
+
+  gameTitle.textContent = `顺序 ${totalNumbers}`;
+  const colorDescription = colorMode === "same" ? "同色棋盘" : "多色棋盘";
+  const trialDescription = ultimateTrial ? " · 终极试炼" : "";
+  gameSubtitle.textContent = `从 1 开始，按顺序点到 ${totalNumbers} · ${colorDescription}${trialDescription}`;
+  maxNumberElement.textContent = totalNumbers;
+  renderBoard();
 }
 
 function selectSize(size) {
@@ -243,6 +407,16 @@ function selectSize(size) {
 
 function selectColorMode(mode) {
   colorMode = mode;
+  const colorDescription = mode === "same" ? "同色棋盘" : "多色棋盘";
+  selectedModeSummary.textContent = `已选择 ${gridSize} × ${gridSize} · ${colorDescription}`;
+  setupScreen.setAttribute("aria-labelledby", "challengeTitle");
+  colorStep.hidden = true;
+  challengeStep.hidden = false;
+  trialModeButtons[0].focus();
+}
+
+function selectTrialMode(isUltimate) {
+  ultimateTrial = isUltimate;
   setupScreen.hidden = true;
   newGame();
 }
@@ -250,8 +424,18 @@ function selectColorMode(mode) {
 function showSizeStep() {
   setupScreen.setAttribute("aria-labelledby", "setupTitle");
   colorStep.hidden = true;
+  challengeStep.hidden = true;
   sizeStep.hidden = false;
   setupScreen.querySelector(`[data-size="${gridSize}"]`).focus();
+}
+
+function showColorStep() {
+  setupScreen.setAttribute("aria-labelledby", "colorTitle");
+  sizeStep.hidden = true;
+  challengeStep.hidden = true;
+  colorStep.hidden = false;
+  const selectedButton = setupScreen.querySelector(`[data-color-mode="${colorMode}"]`);
+  (selectedButton || colorModeButtons[0]).focus();
 }
 
 function openSizePicker() {
@@ -268,7 +452,16 @@ sizeButtons.forEach((button) => {
 colorModeButtons.forEach((button) => {
   button.addEventListener("click", () => selectColorMode(button.dataset.colorMode));
 });
+trialModeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    selectTrialMode(button.dataset.ultimateTrial === "true");
+  });
+});
 backToSizeButton.addEventListener("click", showSizeStep);
+backToColorButton.addEventListener("click", showColorStep);
 restartButton.addEventListener("click", newGame);
 playAgainButton.addEventListener("click", newGame);
 changeSizeButton.addEventListener("click", openSizePicker);
+window.addEventListener("resize", () => {
+  if (state === "complete") drawClickTimeChart();
+});

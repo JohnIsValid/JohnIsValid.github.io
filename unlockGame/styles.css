@@ -64,12 +64,6 @@ button, a { font: inherit; }
 }
 
 .game-header { max-width: 610px; text-align: center; }
-.eyebrow {
-  margin: 0 0 12px;
-  color: var(--cyan);
-  font: 700 11px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
-  letter-spacing: 0.24em;
-}
 
 h1 {
   margin: 0;
@@ -83,6 +77,87 @@ h1 {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.8;
+}
+
+.difficulty-picker {
+  width: min(100%, 690px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.difficulty-picker legend {
+  width: 100%;
+  margin-bottom: 10px;
+  color: var(--muted);
+  text-align: center;
+  font: 700 11px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: 0.14em;
+}
+
+.difficulty-options {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.difficulty-options label {
+  position: relative;
+  min-width: 0;
+  padding: 10px 8px 9px;
+  border: 1px solid rgba(126, 173, 222, 0.18);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  background: rgba(8, 16, 31, 0.58);
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.difficulty-options label:hover {
+  border-color: rgba(101, 246, 255, 0.48);
+  transform: translateY(-1px);
+}
+
+.difficulty-options label:has(input:checked) {
+  border-color: rgba(101, 246, 255, 0.74);
+  background: rgba(37, 95, 123, 0.34);
+  box-shadow: inset 0 0 18px rgba(101, 246, 255, 0.08);
+}
+
+.difficulty-options label:has(input:focus-visible) {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.difficulty-options label:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.48;
+  transform: none;
+}
+
+.difficulty-options input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.difficulty-options span,
+.difficulty-options small {
+  display: block;
+}
+
+.difficulty-options span {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.difficulty-options small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
 }
 
 .game-stage {
@@ -180,7 +255,7 @@ h1 {
 }
 
 .target-range {
-  width: 19%;
+  width: var(--target-size, 17%);
   aspect-ratio: 1;
   opacity: 0;
   border: 1px solid rgba(101, 246, 255, 0.72);
@@ -343,6 +418,33 @@ h1 {
 
 .unlock-layer.active .particles span { animation: particle 1.1s var(--delay) ease-out both; }
 
+.unlock-layer.failure {
+  background: rgba(18, 2, 9, 0.72);
+}
+
+.unlock-layer.failure .unlock-flash {
+  background: #ffcfdb;
+}
+
+.unlock-layer.failure .unlock-wave,
+.unlock-layer.failure .lock-mark,
+.unlock-layer.failure .lock-mark::before {
+  border-color: var(--danger);
+  box-shadow: 0 0 32px rgba(255, 102, 143, 0.68);
+}
+
+.unlock-layer.failure .unlock-message p {
+  color: var(--danger);
+}
+
+.unlock-layer.failure .unlock-message button {
+  border-color: rgba(255, 102, 143, 0.62);
+}
+
+.unlock-layer.failure .particles span {
+  background: linear-gradient(transparent, var(--danger));
+}
+
 @keyframes orbit { to { transform: rotate(360deg); } }
 @keyframes breathe { 50% { transform: scale(1.18); opacity: 0.75; } }
 @keyframes flash { 0% { opacity: 0; } 18% { opacity: 0.86; } 100% { opacity: 0; } }
@@ -358,6 +460,7 @@ h1 {
   .back-link { top: 18px; left: 18px; }
   .game-shell { padding-top: 68px; gap: 20px; }
   .intro { font-size: 13px; }
+  .difficulty-options { grid-template-columns: repeat(3, 1fr); }
   .orb-wrap { width: min(86vw, 390px); }
 }
 

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111b20" />
+    <meta name="description" content="丧尸围城：守住据点，击退四面八方的尸潮。" />
+    <title>丧尸围城</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="topbar">
+        <a href="../index.html#projects">← 返回主页</a>
+        <p>ZOMBIE SIEGE</p>
+      </header>
+
+      <section class="intro">
+        <p class="eyebrow">SURVIVAL / AUTO FIRE</p>
+        <h1>丧尸围城</h1>
+        <p>你无法移动。移动鼠标瞄准，守住据点。</p>
+      </section>
+
+      <section class="arena" aria-label="丧尸围城游戏区">
+        <div class="canvas-wrap">
+          <canvas id="gameCanvas" width="1280" height="720" aria-label="游戏画面：移动鼠标控制开火方向"></canvas>
+          <div class="game-hud" aria-label="当前游戏状态">
+            <div class="game-stat" id="healthHud">
+              <span>生命</span>
+              <strong id="healthValue">100</strong>
+            </div>
+            <div class="game-center" id="weaponHud">
+              <strong id="weaponNameValue">手枪</strong>
+              <span id="ammoValue">12 / ∞</span>
+              <p id="statusValue">准备防守</p>
+            </div>
+            <div class="game-stat game-stat-score">
+              <span>击退</span>
+              <strong id="scoreValue">0</strong>
+            </div>
+          </div>
+          <div class="game-overlay" id="gameOverlay">
+            <p class="overlay-kicker">DEFENSE READY</p>
+            <h2 id="overlayTitle">守住海滩</h2>
+            <p id="overlayCopy">敌人将从四面八方冲来。你会自动开火，只需用鼠标瞄准。</p>
+            <button id="startButton" type="button">开始防守</button>
+          </div>
+        </div>
+        <aside class="sidebar" aria-label="游戏信息">
+          <h2>规则</h2>
+          <div class="rules-list" aria-label="操作规则">
+            <p><span>移动</span>WASD / 方向键</p>
+            <p><span>瞄准</span>移动鼠标</p>
+            <p><span>射击</span>按住鼠标左键</p>
+            <p><span>切枪</span>滚动鼠标滚轮</p>
+            <p><span>拾取</span>接触道具</p>
+          </div>
+          <button class="restart-button" id="restartButton" type="button">重新开始</button>
+        </aside>
+      </section>
+    </main>
+    <script src="config.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>

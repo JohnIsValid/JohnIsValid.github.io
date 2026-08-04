@@ -69,7 +69,7 @@ const getPageIndexFromHash = (hash) => {
 };
 
 const shouldUseNativeScroll = (target) => {
-  const scrollContainer = target?.closest?.(".resource-list");
+  const scrollContainer = target?.closest?.(".resource-list, .project-grid");
   return Boolean(scrollContainer && scrollContainer.scrollHeight > scrollContainer.clientHeight);
 };
 

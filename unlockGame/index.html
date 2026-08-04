@@ -12,10 +12,40 @@
 
     <main class="game-shell">
       <header class="game-header">
-        <p class="eyebrow">CORE ACCESS / 01</p>
         <h1>找到解锁点</h1>
-        <p class="intro">在球体内选择一点并持续按住。扫描环收缩得越完整，代表离正确位置越近。</p>
+        <p class="intro">在球体内选择一点并持续按住。扫描环变红后请立即松开；如果它缩到最小，解锁就会失败。</p>
       </header>
+
+      <fieldset class="difficulty-picker">
+        <legend>选择难度</legend>
+        <div class="difficulty-options">
+          <label>
+            <input type="radio" name="difficulty" value="1" checked />
+            <span>第一档</span>
+            <small>慢速 · 大范围</small>
+          </label>
+          <label>
+            <input type="radio" name="difficulty" value="2" />
+            <span>第二档</span>
+            <small>中速 · 大范围</small>
+          </label>
+          <label>
+            <input type="radio" name="difficulty" value="3" />
+            <span>第三档</span>
+            <small>中速 · 中范围</small>
+          </label>
+          <label>
+            <input type="radio" name="difficulty" value="4" />
+            <span>第四档</span>
+            <small>快速 · 中范围</small>
+          </label>
+          <label>
+            <input type="radio" name="difficulty" value="5" />
+            <span>第五档</span>
+            <small>快速 · 小范围</small>
+          </label>
+        </div>
+      </fieldset>
 
       <section class="game-stage" aria-label="解锁小游戏">
         <div class="orb-wrap">
@@ -53,8 +83,8 @@
       <div class="unlock-wave wave-three"></div>
       <div class="unlock-message">
         <span class="lock-mark" aria-hidden="true"></span>
-        <p>ACCESS GRANTED</p>
-        <h2>解锁成功</h2>
+        <p id="resultLabel">ACCESS GRANTED</p>
+        <h2 id="resultTitle">解锁成功</h2>
         <button type="button" id="restartButton">再次挑战</button>
       </div>
       <div class="particles" id="particles" aria-hidden="true"></div>

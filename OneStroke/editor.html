@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#08120f" />
+    <title>一笔画关卡编辑器</title>
+    <link rel="stylesheet" href="editor.css" />
+  </head>
+  <body>
+    <nav class="top-links" aria-label="页面导航">
+      <a href="index.html">← 返回游戏</a>
+      <a href="../index.html">返回主页</a>
+    </nav>
+
+    <main class="editor-shell">
+      <header class="editor-header">
+        <div>
+          <p class="eyebrow">LEVEL EDITOR</p>
+          <h1>一笔画编辑器</h1>
+          <p class="intro">选择点类型，然后在 10 × 10 棋盘上点击或拖动绘制。</p>
+        </div>
+
+        <label class="name-field">
+          <span>关卡名称</span>
+          <input id="levelName" type="text" value="我的关卡" maxlength="40" />
+        </label>
+      </header>
+
+      <section class="workspace">
+        <aside class="level-library">
+          <div class="library-heading">
+            <div>
+              <p class="section-label">现有关卡</p>
+              <span id="sourceLevelCount">正在读取 levels.js</span>
+            </div>
+            <button id="newLevelButton" type="button">新建</button>
+          </div>
+          <div class="level-list" id="sourceLevelList" aria-label="levels.js 中的关卡列表"></div>
+        </aside>
+
+        <aside class="tool-panel">
+          <div>
+            <p class="section-label">编辑工具</p>
+            <div class="palette" id="palette" role="radiogroup" aria-label="选择点类型">
+              <button class="palette-option active" type="button" role="radio" aria-checked="true" data-value="1">
+                <span class="swatch normal"></span>
+                <span><strong>普通点</strong><small>数字 1</small></span>
+              </button>
+              <button class="palette-option" type="button" role="radio" aria-checked="false" data-value="2">
+                <span class="swatch red"></span>
+                <span><strong>红色点</strong><small>数字 2</small></span>
+              </button>
+              <button class="palette-option" type="button" role="radio" aria-checked="false" data-value="3">
+                <span class="swatch yellow"></span>
+                <span><strong>黄色点</strong><small>数字 3</small></span>
+              </button>
+              <button class="palette-option" type="button" role="radio" aria-checked="false" data-value="4">
+                <span class="swatch purple"></span>
+                <span><strong>紫色点</strong><small>数字 4</small></span>
+              </button>
+              <button class="palette-option" type="button" role="radio" aria-checked="false" data-value="0">
+                <span class="swatch hidden"></span>
+                <span><strong>隐藏 / 擦除</strong><small>数字 0</small></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="summary" aria-live="polite">
+            <p class="section-label">当前统计</p>
+            <div id="pointSummary">普通 0 · 红 0 · 黄 0 · 紫 0</div>
+            <p id="validationMessage">请开始绘制关卡</p>
+          </div>
+
+          <div class="tool-actions">
+            <button class="secondary-button" id="clearPathButton" type="button">清除路径</button>
+            <button class="secondary-button danger-button" id="clearButton" type="button">清空棋盘</button>
+          </div>
+        </aside>
+
+        <section class="board-panel">
+          <div class="editor-board-wrap">
+            <canvas class="path-canvas" id="pathCanvas" aria-hidden="true"></canvas>
+            <div
+              class="editor-board"
+              id="editorBoard"
+              role="grid"
+              aria-label="10乘10关卡编辑棋盘"
+            ></div>
+          </div>
+          <p class="board-help">选择点类型后按住拖动，放置点的同时会生成连线；用普通点工具经过已有颜色点时会保留其颜色。</p>
+        </section>
+      </section>
+
+      <section class="export-panel">
+        <div>
+          <p class="section-label">关卡数据</p>
+          <p>复制后，将关卡对象粘贴到 <code>levels.js</code> 的关卡数组中。</p>
+        </div>
+        <button class="copy-button" id="copyButton" type="button">复制关卡数据</button>
+        <textarea id="dataPreview" readonly spellcheck="false" aria-label="导出的关卡数据"></textarea>
+        <p class="copy-status" id="copyStatus" aria-live="polite"></p>
+      </section>
+
+      <section class="design-notes-panel">
+        <div>
+          <p class="section-label">设计技巧和要素</p>
+          <p>以下内容可以直接修改，后续可替换成正式的关卡设计说明。</p>
+        </div>
+        <textarea id="designNotes" spellcheck="false" aria-label="设计技巧和要素">1. 先规划一条能够经过全部目标点的完整路线，再调整点位。
+2. 简单关卡减少岔路，让玩家容易看出正确方向。
+3. 困难关卡可以加入相似路线和容易误判的转折，但应保留唯一可行解。
+4. 颜色点应成对出现，并确保玩家能够从一个颜色点连到另一个同色点。
+5. 普通点、颜色点和隐藏区域应保持清晰，避免棋盘过度拥挤。
+6. 逐步增加路线长度、转弯数量和颜色组合，让难度平稳上升。
+7. 完成设计后，沿规划路线重新拖动检查一遍，确认关卡可以完成。</textarea>
+      </section>
+    </main>
+
+    <script src="levels.js"></script>
+    <script src="editor.js"></script>
+  </body>
+</html>

@@ -10,6 +10,24 @@
   display: grid;
   grid-template-columns: minmax(0, 680px);
   gap: 18px;
+  max-height: min(52vh, 520px);
+  padding-right: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--accent) rgba(23, 33, 31, 0.16);
+  scrollbar-width: thin;
+}
+
+.project-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.project-grid::-webkit-scrollbar-track {
+  background: rgba(23, 33, 31, 0.16);
+}
+
+.project-grid::-webkit-scrollbar-thumb {
+  background: var(--accent);
 }
 
 .project-card {
