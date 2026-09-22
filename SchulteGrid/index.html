@@ -135,7 +135,19 @@
               <div><span>最慢</span><strong id="slowestClickTime">0.00 秒</strong></div>
             </div>
             <div class="chart-container">
-              <canvas id="clickTimeChart" role="img" aria-label="每次寻找下一个数字的耗时曲线图"></canvas>
+              <canvas
+                id="clickTimeChart"
+                role="img"
+                tabindex="0"
+                aria-label="每次寻找下一个数字的耗时曲线图，点击数据点可查看对应耗时"
+              ></canvas>
+              <div
+                class="chart-tooltip"
+                id="clickTimeTooltip"
+                role="status"
+                aria-live="polite"
+                hidden
+              ></div>
             </div>
             <div class="click-time-list" id="clickTimeList" aria-label="每次点击耗时明细"></div>
           </section>

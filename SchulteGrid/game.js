@@ -12,6 +12,7 @@ const averageClickTimeElement = document.querySelector("#averageClickTime");
 const fastestClickTimeElement = document.querySelector("#fastestClickTime");
 const slowestClickTimeElement = document.querySelector("#slowestClickTime");
 const clickTimeChart = document.querySelector("#clickTimeChart");
+const clickTimeTooltip = document.querySelector("#clickTimeTooltip");
 const clickTimeList = document.querySelector("#clickTimeList");
 const restartButton = document.querySelector("#restartButton");
 const playAgainButton = document.querySelector("#playAgainButton");
@@ -42,6 +43,8 @@ let colorMode = "varied";
 let ultimateTrial = false;
 let lastCorrectClickTime = 0;
 let clickDurations = [];
+let chartPoints = [];
+let selectedChartPoint = -1;
 
 function shuffle(values) {
   const result = [...values];
@@ -175,6 +178,7 @@ function drawClickTimeChart() {
   clickTimeChart.height = Math.round(height * pixelRatio);
   context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   context.clearRect(0, 0, width, height);
+  chartPoints = [];
 
   if (!clickDurations.length) return;
 
@@ -186,6 +190,12 @@ function drawClickTimeChart() {
   const xForIndex = (index) => padding.left
     + (clickDurations.length === 1 ? chartWidth / 2 : (index / (clickDurations.length - 1)) * chartWidth);
   const yForDuration = (duration) => padding.top + chartHeight - (duration / axisMax) * chartHeight;
+  chartPoints = clickDurations.map((item, index) => ({
+    index,
+    item,
+    x: xForIndex(index),
+    y: yForDuration(item.duration),
+  }));
 
   context.font = '11px Inter, "PingFang SC", sans-serif';
   context.textBaseline = "middle";
@@ -246,6 +256,76 @@ function drawClickTimeChart() {
     context.lineWidth = 2;
     context.stroke();
   });
+
+  if (selectedChartPoint >= 0 && chartPoints[selectedChartPoint]) {
+    const point = chartPoints[selectedChartPoint];
+    context.beginPath();
+    context.arc(point.x, point.y, 7, 0, Math.PI * 2);
+    context.fillStyle = "#e84b35";
+    context.fill();
+    context.strokeStyle = "#fffdf8";
+    context.lineWidth = 3;
+    context.stroke();
+    positionChartTooltip(point);
+  }
+}
+
+function positionChartTooltip(point) {
+  const container = clickTimeChart.parentElement;
+  const minimumLeft = 76;
+  const maximumLeft = Math.max(minimumLeft, container.clientWidth - minimumLeft);
+  const left = Math.min(
+    maximumLeft,
+    Math.max(minimumLeft, clickTimeChart.offsetLeft + point.x),
+  );
+  const placeBelow = point.y < 58;
+
+  clickTimeTooltip.textContent = `寻找 ${point.item.number}：${formatDuration(point.item.duration)}`;
+  clickTimeTooltip.style.left = `${left}px`;
+  clickTimeTooltip.style.top = `${clickTimeChart.offsetTop + point.y}px`;
+  clickTimeTooltip.classList.toggle("below", placeBelow);
+  clickTimeTooltip.hidden = false;
+}
+
+function selectChartPoint(index) {
+  if (!chartPoints[index]) return;
+  selectedChartPoint = index;
+  drawClickTimeChart();
+}
+
+function handleChartClick(event) {
+  if (!chartPoints.length) return;
+
+  const rect = clickTimeChart.getBoundingClientRect();
+  const pointerX = event.clientX - rect.left;
+  const pointerY = event.clientY - rect.top;
+  const nearestPoint = chartPoints.reduce((nearest, point) => {
+    const distance = Math.hypot(point.x - pointerX, point.y - pointerY);
+    return !nearest || distance < nearest.distance ? { point, distance } : nearest;
+  }, null);
+
+  if (nearestPoint && nearestPoint.distance <= 28) {
+    selectChartPoint(nearestPoint.point.index);
+  }
+}
+
+function handleChartKeydown(event) {
+  if (!chartPoints.length) return;
+  if (!["ArrowLeft", "ArrowRight", "Home", "End", "Enter", " "].includes(event.key)) return;
+  event.preventDefault();
+
+  if (event.key === "Home") selectChartPoint(0);
+  else if (event.key === "End") selectChartPoint(chartPoints.length - 1);
+  else if (event.key === "ArrowLeft") {
+    selectChartPoint(Math.max(0, selectedChartPoint < 0 ? 0 : selectedChartPoint - 1));
+  } else if (event.key === "ArrowRight") {
+    selectChartPoint(Math.min(
+      chartPoints.length - 1,
+      selectedChartPoint < 0 ? 0 : selectedChartPoint + 1,
+    ));
+  } else {
+    selectChartPoint(selectedChartPoint < 0 ? 0 : selectedChartPoint);
+  }
 }
 
 function renderClickAnalysis() {
@@ -267,6 +347,8 @@ function renderClickAnalysis() {
     fragment.appendChild(entry);
   });
   clickTimeList.appendChild(fragment);
+  selectedChartPoint = -1;
+  clickTimeTooltip.hidden = true;
   requestAnimationFrame(drawClickTimeChart);
 }
 
@@ -376,6 +458,9 @@ function newGame() {
   elapsedTime = 0;
   lastCorrectClickTime = 0;
   clickDurations = [];
+  chartPoints = [];
+  selectedChartPoint = -1;
+  clickTimeTooltip.hidden = true;
   state = "ready";
   timerElement.textContent = "00:00.00";
   nextNumberElement.textContent = "1";
@@ -462,6 +547,8 @@ backToColorButton.addEventListener("click", showColorStep);
 restartButton.addEventListener("click", newGame);
 playAgainButton.addEventListener("click", newGame);
 changeSizeButton.addEventListener("click", openSizePicker);
+clickTimeChart.addEventListener("click", handleChartClick);
+clickTimeChart.addEventListener("keydown", handleChartKeydown);
 window.addEventListener("resize", () => {
   if (state === "complete") drawClickTimeChart();
 });

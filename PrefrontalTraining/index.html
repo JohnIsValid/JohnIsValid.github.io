@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f3ed" />
+    <title>前额叶训练</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="back-link" href="../index.html">← 返回主页</a>
+
+    <section class="setup-screen" id="setupScreen" aria-labelledby="setupTitle">
+      <div class="setup-card">
+        <p class="eyebrow">PREFRONTAL FOCUS</p>
+        <div id="durationStep">
+          <h1 id="setupTitle">前额叶训练</h1>
+          <p class="setup-intro">保持注视中间的绿点，同时留意两侧短促出现的闪烁。</p>
+          <div class="benefits" aria-label="训练说明">
+            <p><strong>训练方式</strong>：无需点击、没有对错与输赢。</p>
+            <p><strong>建议</strong>：放松呼吸，用余光觉察左右两侧的变化。</p>
+          </div>
+          <h2>选择训练时长</h2>
+          <div class="option-grid" aria-label="训练时长">
+            <button type="button" data-duration="30"><strong>30</strong><span>秒</span></button>
+            <button type="button" data-duration="40"><strong>40</strong><span>秒</span></button>
+            <button type="button" data-duration="50"><strong>50</strong><span>秒</span></button>
+          </div>
+        </div>
+
+        <div id="intervalStep" hidden>
+          <button class="back-button" type="button" id="backButton">← 返回时长选择</button>
+          <p class="eyebrow">第二步</p>
+          <h1>选择闪烁间隔</h1>
+          <p class="setup-intro" id="durationSummary">本局时长：30 秒</p>
+          <div class="option-grid interval-grid" aria-label="闪烁间隔">
+            <button type="button" data-interval="1200"><strong>1.2</strong><span>秒 · 舒缓</span></button>
+            <button type="button" data-interval="1000"><strong>1.0</strong><span>秒 · 标准</span></button>
+            <button type="button" data-interval="800"><strong>0.8</strong><span>秒 · 紧凑</span></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="game-shell" id="gameShell" hidden>
+      <header class="game-header">
+        <div>
+          <p class="eyebrow">PREFRONTAL FOCUS</p>
+          <h1>前额叶训练</h1>
+          <p id="instruction">注视中间绿点，用余光感受左右变化。</p>
+        </div>
+        <div class="header-actions">
+          <button type="button" id="settingsButton">训练设置</button>
+          <button type="button" id="restartButton">重新开始</button>
+        </div>
+      </header>
+
+      <section class="status-panel" aria-label="本局状态">
+        <div><span>剩余时间</span><strong id="timer">00:30</strong></div>
+        <div><span>闪烁间隔</span><strong id="intervalDisplay">1.0 秒</strong></div>
+      </section>
+
+      <section class="focus-stage" aria-label="注意力训练区域">
+        <p class="stage-note">保持视线在中间</p>
+        <div class="dot-row">
+          <div class="dot-wrap"><span class="dot left-dot" id="leftDot" aria-label="左侧红点"></span></div>
+          <div class="dot-wrap center-wrap"><span class="dot center-dot" aria-label="中间绿点"></span></div>
+          <div class="dot-wrap"><span class="dot right-dot" id="rightDot" aria-label="右侧黄点"></span></div>
+        </div>
+        <p class="stage-hint" id="stageHint" aria-live="polite">训练开始后，左右两侧会不定时快速闪烁。</p>
+      </section>
+    </main>
+
+    <div class="complete-layer" id="completeLayer" aria-hidden="true">
+      <div class="complete-card" role="dialog" aria-modal="true" aria-labelledby="completeTitle">
+        <p class="eyebrow">SESSION COMPLETE</p>
+        <h2 id="completeTitle">本轮训练结束</h2>
+        <p id="completeText">你已完成 30 秒的专注练习。</p>
+        <p class="complete-note">这里没有评分。稍作休息后，按自己的节奏继续即可。</p>
+        <div class="complete-actions">
+          <button type="button" id="againButton">再来一局</button>
+          <button type="button" class="secondary" id="completeSettingsButton">更改设置</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>
